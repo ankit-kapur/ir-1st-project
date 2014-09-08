@@ -1,13 +1,7 @@
-/**
- * 
- */
 package edu.buffalo.cse.irf14;
 
 import java.io.File;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import edu.buffalo.cse.irf14.document.Document;
 import edu.buffalo.cse.irf14.document.Parser;
 import edu.buffalo.cse.irf14.document.ParserException;
@@ -84,7 +78,8 @@ public class Runner {
 			System.out.println("dateCount: " + Parser.dateCount);
 			System.out.println("placeCount: " + Parser.placeCount);
 			System.out.println("contentCount: " + Parser.contentCount);
-
+			System.out.println("ReadingTime: " + Parser.counttime);
+			
 			writer.close();
 
 			System.out.println("\nTime for execution ==> " + (new Date().getTime() - startTime) / 1000.0 + " seconds");
