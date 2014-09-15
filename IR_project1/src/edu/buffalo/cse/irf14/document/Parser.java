@@ -18,42 +18,54 @@ public class Parser {
 	 * Static method to parse the given file into the Document object
 	 * 
 	 * @param fileName
-	 *                  : The fully qualified filename to be parsed
+	 *            : The fully qualified filename to be parsed
 	 * @return The parsed and fully loaded Document object
 	 * @throws ParserException
-	 *                   In case any error occurs during parsing
+	 *             In case any error occurs during parsing
 	 */
 
 	public static int errorCount = 0;
-	public static int titleCount = 0, authorCount = 0, dateCount = 0, placeCount = 0, contentCount = 0;
-	public static double counttime=0;
+	public static int titleCount = 0, authorCount = 0, dateCount = 0,
+			placeCount = 0, contentCount = 0;
+	public static double counttime = 0;
+
 	public static Document parse(String fileName) throws ParserException {
+
 		String fileId = null, category = null, title = null, author = null, authorOrg = null, newsDate = null, place = null, content = null;
 		Document document = new Document();
 		long startTime = new Date().getTime();
-		try {
-			
-			int lastPointerPosition = 0;
 
-			/* Read file's body into a single string */
-			String fileBody = null;
+		int lastPointerPosition = 0;
+
+		/* Read file's body into a single string */
+		String fileBody = null;
+		try {
+			if(fileName==null ||fileName.equals(""))
+			throw new ParserException();
 			try {
-				fileBody = new Scanner(new File(fileName)).useDelimiter("\\A").next();
-				counttime=counttime+(new Date().getTime() - startTime / 1000.0);
-				
+				fileBody = new Scanner(new File(fileName)).useDelimiter("\\A")
+						.next();
+				counttime = counttime
+						+ (new Date().getTime() - startTime / 1000.0);
+
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				throw new ParserException();
 			};
 			/* File ID */
-			int fileNamePosition = fileName.lastIndexOf("\\") >= 0 ? fileName.lastIndexOf("\\") + 1 : fileName.lastIndexOf("/") + 1;
+			
+			int fileNamePosition = fileName.lastIndexOf("\\") >= 0 ? fileName
+					.lastIndexOf("\\") + 1 : fileName.lastIndexOf("/") + 1;
 			fileId = fileName.substring(fileNamePosition);
 
 			/* Category ID */
-			int categoryPosition = fileName.substring(0, fileNamePosition - 1).lastIndexOf("\\") >= 0 ? fileName.substring(0,
-					fileNamePosition - 1).lastIndexOf("\\") + 1 : fileName.substring(0, fileNamePosition - 1)
-					.lastIndexOf("/") + 1;
-			category = fileName.substring(categoryPosition, fileNamePosition - 1);
+			int categoryPosition = fileName.substring(0, fileNamePosition - 1)
+					.lastIndexOf("\\") >= 0 ? fileName.substring(0,
+					fileNamePosition - 1).lastIndexOf("\\") + 1 : fileName
+					.substring(0, fileNamePosition - 1).lastIndexOf("/") + 1;
+			category = fileName.substring(categoryPosition,
+					fileNamePosition - 1);
 
 			/* Title */
 			Pattern pattern = Pattern.compile("[\\r\\n\\s]*");
@@ -61,7 +73,8 @@ public class Parser {
 			if (matcher.find()) {
 				lastPointerPosition += matcher.end();
 				pattern = Pattern.compile(".*");
-				matcher = pattern.matcher(fileBody.substring(lastPointerPosition));
+				matcher = pattern.matcher(fileBody
+						.substring(lastPointerPosition));
 				if (matcher.find()) {
 					title = matcher.group();
 					titleCount++;
@@ -74,17 +87,22 @@ public class Parser {
 			matcher = pattern.matcher(fileBody.substring(lastPointerPosition));
 			if (matcher.find()) {
 				lastPointerPosition += matcher.end();
-				pattern = Pattern.compile("<[aA][uU][tT][hH][oO][rR]>\\s*[bB][yY]\\s*");
-				matcher = pattern.matcher(fileBody.substring(lastPointerPosition));
+				pattern = Pattern
+						.compile("<[aA][uU][tT][hH][oO][rR]>\\s*[bB][yY]\\s*");
+				matcher = pattern.matcher(fileBody
+						.substring(lastPointerPosition));
 				if (matcher.find()) {
 					lastPointerPosition += matcher.end();
 					pattern = Pattern.compile("(.+?)</AUTHOR>\\s*");
-					matcher = pattern.matcher(fileBody.substring(lastPointerPosition));
+					matcher = pattern.matcher(fileBody
+							.substring(lastPointerPosition));
 
 					if (matcher.find()) {
-						author = matcher.group().substring(0, matcher.group().indexOf("<"));
+						author = matcher.group().substring(0,
+								matcher.group().indexOf("<"));
 						if (author.contains(",")) {
-							authorOrg = author.substring(author.indexOf(",") + 1).trim();
+							authorOrg = author.substring(
+									author.indexOf(",") + 1).trim();
 							author = author.substring(0, author.indexOf(","));
 						}
 						authorCount++;
@@ -99,20 +117,27 @@ public class Parser {
 			matcher = pattern.matcher(fileBody.substring(lastPointerPosition));
 			if (matcher.find()) {
 				lastPointerPosition += matcher.end();
-				pattern = Pattern.compile("(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(t(ember)?)?|oct(ober)?|nov(ember)?|dec(ember)?)\\s*[\\d]*");
-				matcher = pattern.matcher(fileBody.substring(lastPointerPosition).toLowerCase());
+				pattern = Pattern
+						.compile("(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(t(ember)?)?|oct(ober)?|nov(ember)?|dec(ember)?)\\s*[\\d]*");
+				matcher = pattern.matcher(fileBody.substring(
+						lastPointerPosition).toLowerCase());
 
 				if (matcher.find()) {
 					dateStartPosition = matcher.start() + lastPointerPosition;
 					dateEndPosition = matcher.end() + lastPointerPosition;
-					newsDate = fileBody.substring(dateStartPosition, dateEndPosition);
+					newsDate = fileBody.substring(dateStartPosition,
+							dateEndPosition);
 					dateCount++;
 
 					/* Place */
-					if (fileBody.substring(lastPointerPosition, dateStartPosition).lastIndexOf(",") >= 0) {
-						int placeEndPosition = fileBody.substring(lastPointerPosition, dateStartPosition)
-								.lastIndexOf(",") + lastPointerPosition;
-						place = fileBody.substring(lastPointerPosition, placeEndPosition);
+					if (fileBody.substring(lastPointerPosition,
+							dateStartPosition).lastIndexOf(",") >= 0) {
+						int placeEndPosition = fileBody.substring(
+								lastPointerPosition, dateStartPosition)
+								.lastIndexOf(",")
+								+ lastPointerPosition;
+						place = fileBody.substring(lastPointerPosition,
+								placeEndPosition);
 						placeCount++;
 					}
 					lastPointerPosition = dateEndPosition;
@@ -122,34 +147,35 @@ public class Parser {
 			/* Content */
 			if (fileBody.substring(lastPointerPosition) != null) {
 				content = fileBody.substring(lastPointerPosition).trim();
-				content = (content.charAt(0) == '-') ? content.substring(1).trim() : content;
+				content = (content.charAt(0) == '-') ? content.substring(1)
+						.trim() : content;
 				contentCount++;
 			}
 
-		/*	System.out.println("\nFile ID: " + fileId);
-			System.out.println("Category: " + category);
-			System.out.println("Title: " + title);
-			System.out.println("Author: " + author);
-			System.out.println("Author org: " + authorOrg);
-			System.out.println("Date: " + newsDate);
-			System.out.println("Place: " + place);
-			System.out.println("Content: " + content);*/
-
-			
+			if(fileId!=null)
 			document.setField(FieldNames.FILEID, fileId);
+			if(category!=null)
 			document.setField(FieldNames.CATEGORY, category);
+			if(title!=null)
 			document.setField(FieldNames.TITLE, title);
+			if(author!=null)
 			document.setField(FieldNames.AUTHOR, author);
+			if(authorOrg!=null)
 			document.setField(FieldNames.AUTHORORG, authorOrg);
+			if(place!=null)
 			document.setField(FieldNames.PLACE, place);
+			if(newsDate!=null)
 			document.setField(FieldNames.NEWSDATE, newsDate);
+			if(content!=null)
 			document.setField(FieldNames.CONTENT, content);
-			
-			
-		} catch (StringIndexOutOfBoundsException e) {
+
+		}
+
+		catch (StringIndexOutOfBoundsException e) {
 			e.printStackTrace();
 			errorCount++;
 		}
 		return document;
+
 	}
 }
