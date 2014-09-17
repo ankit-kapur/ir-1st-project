@@ -69,6 +69,11 @@ public class IndexWriter {
 				content=d.getField(FieldNames.CONTENT)[0];
 				tokenizer.consume(content);
 			}
+			if(d.getField(FieldNames.CONTENT)[0]!=null)
+			{
+				content=d.getField(FieldNames.CONTENT)[0];
+				tokenizer.consume(content);
+			}
 		}
 		catch(TokenizerException e)
 		{
