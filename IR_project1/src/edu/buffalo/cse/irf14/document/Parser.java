@@ -143,10 +143,22 @@ public class Parser {
 				System.out.println("Place: " + place);
 				System.out.println("Content: " + content);
 			}
-
-			document.setField(FieldNames.TITLE, title);
-			document.setField(FieldNames.AUTHOR, author);
-			document.setField(FieldNames.NEWSDATE, newsDate);
+	if(fileId!=null)
+ 			document.setField(FieldNames.FILEID, fileId);
+			if(category!=null)
+ 			document.setField(FieldNames.CATEGORY, category);
+			if(title!=null)
+ 			document.setField(FieldNames.TITLE, title);
+			if(author!=null)
+ 			document.setField(FieldNames.AUTHOR, author);
+			if(authorOrg!=null)
+ 			document.setField(FieldNames.AUTHORORG, authorOrg);
+			if(place!=null)
+ 			document.setField(FieldNames.PLACE, place);
+			if(newsDate!=null)
+ 			document.setField(FieldNames.NEWSDATE, newsDate);
+			if(content!=null)
+ 			document.setField(FieldNames.CONTENT, content);
 		} catch (StringIndexOutOfBoundsException e) {
 			e.printStackTrace();
 			errorCount++;
