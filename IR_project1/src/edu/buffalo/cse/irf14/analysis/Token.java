@@ -4,7 +4,7 @@
 package edu.buffalo.cse.irf14.analysis;
 
 /**
- * 	@author nikhillo This class represents the smallest indexable unit of text.
+ * @author nikhillo This class represents the smallest indexable unit of text.
  *         At the very least it is backed by a string representation that can be
  *         interchangeably used with the backing char array.
  * 
@@ -15,7 +15,7 @@ public class Token {
 	// The backing string representation -- can contain extraneous
 	// information
 	private String termText;
-	
+
 	// The char array backing termText
 	private char[] termBuffer;
 
@@ -75,23 +75,47 @@ public class Token {
 	 */
 	protected void merge(Token... tokens) {
 		// TODO : YOU MUST IMPLEMENT THIS METHOD
+
+		for (Token token : tokens) {
+			if (token != null) {
+				this.setTermText(this.getTermText() + " " +  token.getTermText());
+
+				/* Combine term buffers */
+				char[] thisBuffer = this.getTermBuffer();
+				char[] newBuffer = token.getTermBuffer();
+				char[] mergedBuffer = new char[thisBuffer.length + newBuffer.length];
+				for (int i = 0; i < thisBuffer.length; i++) {
+					mergedBuffer[i] = thisBuffer[i];
+				}
+				for (int i = 0; i < newBuffer.length; i++) {
+					mergedBuffer[i + newBuffer.length] = newBuffer[i];
+				}
+
+				this.setTermBuffer(mergedBuffer);
+			}
+		}
 	}
 
 	/**
 	 * Returns the string representation of this token. It must adhere to
-	 * the following rules: 1. Return only the associated "text" with the
-	 * token. Any other information must be suppressed. 2. Must return a
-	 * non-empty value only for tokens that are going to be indexed If you
-	 * introduce special token types (sentence boundary for example),
-	 * return an empty string 3. IF the original token A (with string as
-	 * "a") was merged with tokens B ("b"), C ("c") and D ("d"), toString
-	 * should return "a b c d"
+	 * the following rules:
+	 * 
+	 * 1. Return only the associated "text" with the token. Any other
+	 * information must be suppressed.
+	 * 
+	 * 2. Must return a non-empty value only for tokens that are going to
+	 * be indexed If you introduce special token types (sentence boundary
+	 * for example), return an empty string
+	 * 
+	 * 3. IF the original token A (with string as "a") was merged with
+	 * tokens B ("b"), C ("c") and D ("d"), toString should return
+	 * "a b c d"
 	 * 
 	 * @return The raw string representation of the token
 	 */
 	@Override
 	public String toString() {
 		// TODO: YOU MUST IMPLEMENT THIS METHOD
-		return null;
+		return termText;
 	}
 }

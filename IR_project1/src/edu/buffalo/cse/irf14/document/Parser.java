@@ -5,6 +5,7 @@ package edu.buffalo.cse.irf14.document;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,18 +25,27 @@ public class Parser {
 	 */
 
 	public static int errorCount = 0;
-	public static int titleCount = 0, authorCount = 0, dateCount = 0, placeCount = 0, contentCount = 0;
+	public static Map<String, String> tempMap;
+	public static int titleCount = 0, authorCount = 0, authorOrg = 0, dateCount = 0, placeCount = 0, contentCount = 0;
 
 	public static Document parse(String fileName) throws ParserException {
 		String fileId = null, category = null, title = null, author = null, authorOrg = null, newsDate = null, place = null, content = null;
-
+		Document document = new Document();
+		
 		try {
+			File file = new File(fileName);
+			if (fileName == null || fileName.equals("")) {
+				throw new ParserException();
+			} else if (!file.exists()) {
+				throw new ParserException();
+			}
+
 			int lastPointerPosition = 0;
 
 			/* Read file's body into a single string */
 			String fileBody = null;
 			try {
-				fileBody = new Scanner(new File(fileName)).useDelimiter("\\A").next();
+				fileBody = new Scanner(file).useDelimiter("\\A").next();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -109,6 +119,7 @@ public class Parser {
 						int placeEndPosition = fileBody.substring(lastPointerPosition, dateStartPosition)
 								.lastIndexOf(",") + lastPointerPosition;
 						place = fileBody.substring(lastPointerPosition, placeEndPosition);
+						tempMap.put(category + "-" + fileId, place);
 						placeCount++;
 					}
 					lastPointerPosition = dateEndPosition;
@@ -122,24 +133,25 @@ public class Parser {
 				contentCount++;
 			}
 
-			System.out.println("\nFile ID: " + fileId);
-			System.out.println("Category: " + category);
-			System.out.println("Title: " + title);
-			System.out.println("Author: " + author);
-			System.out.println("Author org: " + authorOrg);
-			System.out.println("Date: " + newsDate);
-			System.out.println("Place: " + place);
-			System.out.println("Content: " + content);
+			if (fileId.equals("0007781") || fileId.equals("0004709")) {
+				System.out.println("\nFile ID: " + fileId);
+				System.out.println("Category: " + category);
+				System.out.println("Title: " + title);
+				System.out.println("Author: " + author);
+				System.out.println("Author org: " + authorOrg);
+				System.out.println("Date: " + newsDate);
+				System.out.println("Place: " + place);
+				System.out.println("Content: " + content);
+			}
 
-			Document document = new Document();
 			document.setField(FieldNames.TITLE, title);
 			document.setField(FieldNames.AUTHOR, author);
 			document.setField(FieldNames.NEWSDATE, newsDate);
 		} catch (StringIndexOutOfBoundsException e) {
 			e.printStackTrace();
-
 			errorCount++;
 		}
-		return null;
+
+		return document;
 	}
 }

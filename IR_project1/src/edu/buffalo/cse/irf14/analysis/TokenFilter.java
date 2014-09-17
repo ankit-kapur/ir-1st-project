@@ -6,6 +6,7 @@ package edu.buffalo.cse.irf14.analysis;
 /**
  * The abstract class that you must extend when implementing your 
  * TokenFilter rule implementations.
+ * 
  * Apart from the inherited Analyzer methods, we would use the 
  * inherited constructor (as defined here) to test your code.
  * @author nikhillo
