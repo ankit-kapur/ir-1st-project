@@ -3,7 +3,13 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import java.util.ArrayList;
+
+import edu.buffalo.cse.irf14.analysis.Token;
+import edu.buffalo.cse.irf14.analysis.Tokenizer;
+import edu.buffalo.cse.irf14.analysis.TokenizerException;
 import edu.buffalo.cse.irf14.document.Document;
+import edu.buffalo.cse.irf14.document.FieldNames;
 
 /**
  * @author nikhillo
@@ -12,7 +18,7 @@ import edu.buffalo.cse.irf14.document.Document;
 public class IndexWriter {
 	/**
 	 * Default constructor
-	 * @param indexDir : The root directory to be used for indexing
+	 * @param indexDir : The root directory to be sued for indexing
 	 */
 	public IndexWriter(String indexDir) {
 		//TODO : YOU MUST IMPLEMENT THIS
@@ -28,6 +34,47 @@ public class IndexWriter {
 	 */
 	public void addDocument(Document d) throws IndexerException {
 		//TODO : YOU MUST IMPLEMENT THIS
+		
+		try
+		{
+			Tokenizer tokenizer=new Tokenizer();
+			String title=null,author=null,authorOrg=null,place=null,newsdate=null,content=null;
+			if(d.getField(FieldNames.TITLE)[0]!=null)
+			{
+				title=d.getField(FieldNames.TITLE)[0];
+				tokenizer.consume(title);
+			}
+			if(d.getField(FieldNames.AUTHOR)[0]!=null)
+			{
+				author=d.getField(FieldNames.AUTHOR)[0];
+				tokenizer.consume(author);
+			}
+			if(d.getField(FieldNames.AUTHORORG)[0]!=null)
+			{
+				authorOrg=d.getField(FieldNames.AUTHORORG)[0];
+				tokenizer.consume(authorOrg);
+			}
+			if(d.getField(FieldNames.PLACE)[0]!=null)
+			{
+				place=d.getField(FieldNames.PLACE)[0];
+				tokenizer.consume(place);
+			}
+			if(d.getField(FieldNames.NEWSDATE)[0]!=null)
+			{
+				newsdate=d.getField(FieldNames.NEWSDATE)[0];
+				tokenizer.consume(newsdate);
+			}	
+			if(d.getField(FieldNames.CONTENT)[0]!=null)
+			{
+				content=d.getField(FieldNames.CONTENT)[0];
+				tokenizer.consume(content);
+			}
+		}
+		catch(TokenizerException e)
+		{
+			System.out.println("Exception caught");
+			e.printStackTrace();
+		}		
 	}
 	
 	/**
