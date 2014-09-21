@@ -61,6 +61,7 @@ public class TokenStream implements Iterator<Token> {
 			currentToken = null;
 			return null;
 		}
+<<<<<<< HEAD
 	}
 	
 	public void previous() {
@@ -71,6 +72,8 @@ public class TokenStream implements Iterator<Token> {
 			return true;
 		else
 			return false;
+=======
+>>>>>>> 1378e2ec9140839c2c9a9872a1f14b79c34c06ef
 	}
 
 	/**
@@ -145,7 +148,10 @@ public class TokenStream implements Iterator<Token> {
 			return null;
 		}
 	}
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 1378e2ec9140839c2c9a9872a1f14b79c34c06ef
 
 	/* Custom methods */
 	public List<Token> getTokenStreamAsList() {
