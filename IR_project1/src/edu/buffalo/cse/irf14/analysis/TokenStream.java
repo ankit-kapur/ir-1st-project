@@ -61,20 +61,10 @@ public class TokenStream implements Iterator<Token> {
 			currentToken = null;
 			return null;
 		}
-<<<<<<< HEAD
+
 	}
 	
-	public void previous() {
-		indexOfCurrent =indexOfCurrent-1;
-	}
-	public boolean first() {
-		if(indexOfCurrent==1)
-			return true;
-		else
-			return false;
-=======
->>>>>>> 1378e2ec9140839c2c9a9872a1f14b79c34c06ef
-	}
+
 
 	/**
 	 * Method to remove the current Token from the stream. Note that "current"
@@ -148,10 +138,7 @@ public class TokenStream implements Iterator<Token> {
 			return null;
 		}
 	}
-<<<<<<< HEAD
-	
-=======
->>>>>>> 1378e2ec9140839c2c9a9872a1f14b79c34c06ef
+
 
 	/* Custom methods */
 	public List<Token> getTokenStreamAsList() {
@@ -161,4 +148,16 @@ public class TokenStream implements Iterator<Token> {
 	public void addTokenToStream(Token newToken) {
 		tokenList.add(newToken);
 	}
+	
+	//Added by Harsh for use in Capitalization filter
+	public void previous() {
+		indexOfCurrent =indexOfCurrent-1;
+	}
+	public boolean first() {
+		if(indexOfCurrent==1)
+			return true;
+		else
+			return false;
+	}
+	
 }
