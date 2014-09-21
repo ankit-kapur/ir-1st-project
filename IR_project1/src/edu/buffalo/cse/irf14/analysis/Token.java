@@ -76,22 +76,12 @@ public class Token {
 	protected void merge(Token... tokens) {
 		// TODO : YOU MUST IMPLEMENT THIS METHOD
 
-		for (Token token : tokens) {
-			if (token != null) {
-				this.setTermText(this.getTermText() + " " +  token.getTermText());
+		if (tokens != null) {
 
-				/* Combine term buffers */
-				char[] thisBuffer = this.getTermBuffer();
-				char[] newBuffer = token.getTermBuffer();
-				char[] mergedBuffer = new char[thisBuffer.length + newBuffer.length];
-				for (int i = 0; i < thisBuffer.length; i++) {
-					mergedBuffer[i] = thisBuffer[i];
+			for (Token token : tokens) {
+				if (token != null) {
+					this.setTermText(this.getTermText() + " " + token.getTermText());
 				}
-				for (int i = 0; i < newBuffer.length; i++) {
-					mergedBuffer[i + newBuffer.length] = newBuffer[i];
-				}
-
-				this.setTermBuffer(mergedBuffer);
 			}
 		}
 	}

@@ -23,7 +23,8 @@ public class TokenFilterFactory {
 	 */
 	public static TokenFilterFactory getInstance() {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
-		return null;
+		TokenFilterFactory tokenFilterFactory= new TokenFilterFactory();
+		return tokenFilterFactory;
 	}
 	
 	/**
@@ -36,6 +37,20 @@ public class TokenFilterFactory {
 	 */
 	public TokenFilter getFilterByType(TokenFilterType type, TokenStream stream) {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
-		return null;
+		if(type==TokenFilterType.ACCENT)
+			return new AccentFilter(stream);
+		if(type==TokenFilterType.NUMERIC)
+			return new NumberFilter(stream);
+		if(type==TokenFilterType.STOPWORD)
+			return new StopWordFilter(stream);
+		if(type==TokenFilterType.STEMMER)
+			return new StemmerFilter(stream);
+		if(type==TokenFilterType.SPECIALCHARS)
+			return new SpecialCharFilter(stream);
+		if(type==TokenFilterType.CAPITALIZATION)
+			return new CapitalizationFilter(stream);//To be changed
+		else 
+			return null;
+			
 	}
 }

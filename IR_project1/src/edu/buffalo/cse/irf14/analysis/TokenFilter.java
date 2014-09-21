@@ -18,7 +18,14 @@ public abstract class TokenFilter implements Analyzer {
 	 * TokenStream
 	 * @param stream : The given TokenStream instance
 	 */
+	TokenStream stream=null;
 	public TokenFilter(TokenStream stream) {
-		//TODO : YOU MUST IMPLEMENT THIS METHOD
+		this.stream=stream;
+		
+	}
+	
+	@Override
+	public boolean increment() throws TokenizerException {
+			return false;
 	}
 }
