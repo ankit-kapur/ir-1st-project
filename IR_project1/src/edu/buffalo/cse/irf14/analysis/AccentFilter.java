@@ -1,5 +1,8 @@
 package edu.buffalo.cse.irf14.analysis;
+
+import java.text.Normalizer;
 import java.util.HashMap;
+import java.util.HashSet;
 /**
  * @author Harsh
  * @parameter {@link TokenStream}
@@ -95,25 +98,23 @@ public class AccentFilter extends TokenFilter {
 		accentMap.put("ﬄ", "ffl");
 		accentMap.put("ﬅ", "ft");
 		accentMap.put("ﬆ", "st");
-
+		
 	}
 	public TokenStream accentFilter(TokenStream tStream)
 	{
+		String filteredString=null;
 		String finalString=null;
 		String filterString=null;
-		String mapKey=null;
-		String value=null;
-		accentFlag=false;
 		while(tStream.hasNext())
 		{
 			tStream.next();
-
-
+			accentFlag=false;
+			String mapKey=null;
 			int count=0;
 			Token tokens=tStream.getCurrent();
 			String token=tokens.getTermText();
 			String[] filter=token.split("");
-
+			String value=null;
 			for(String s:filter)
 			{
 				if(accentMap.containsKey(s))
@@ -127,21 +128,22 @@ public class AccentFilter extends TokenFilter {
 							accentFlag=true;
 							count++;
 							break;
-
+							
 						}
+							
 					}
 					filterString=mapKey;
 					if(count<2)
-						finalString=token.replace(filterString,value);
+					finalString=token.replace(filterString,value);
 					if(count>=2)
-						finalString=finalString.replace(filterString,value);
+					finalString=finalString.replace(filterString,value);
 				}
 			}
 			Token token2 = new Token();
 			if(accentFlag)
-				token2.setTermText(finalString);
+			token2.setTermText(finalString);
 			else
-				token2.setTermText(token);
+			token2.setTermText(token);
 			tokenStream.addTokenToStream(token2);
 		}
 		return tokenStream;		
