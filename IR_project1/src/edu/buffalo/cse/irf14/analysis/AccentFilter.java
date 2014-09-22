@@ -1,8 +1,5 @@
 package edu.buffalo.cse.irf14.analysis;
-
-import java.text.Normalizer;
 import java.util.HashMap;
-import java.util.HashSet;
 /**
  * @author Harsh
  * @parameter {@link TokenStream}
@@ -102,7 +99,6 @@ public class AccentFilter extends TokenFilter {
 	}
 	public TokenStream accentFilter(TokenStream tStream)
 	{
-		String filteredString=null;
 		String finalString=null;
 		String filterString=null;
 		while(tStream.hasNext())
@@ -128,9 +124,7 @@ public class AccentFilter extends TokenFilter {
 							accentFlag=true;
 							count++;
 							break;
-							
 						}
-							
 					}
 					filterString=mapKey;
 					if(count<2)
