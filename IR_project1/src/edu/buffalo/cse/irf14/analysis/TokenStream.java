@@ -41,7 +41,6 @@ public class TokenStream implements Iterator<Token> {
 		else
 			return false;
 	}
-	
 
 	/**
 	 * Method to return the next Token in the stream. If a previous hasNext()
@@ -54,17 +53,13 @@ public class TokenStream implements Iterator<Token> {
 		// TODO YOU MUST IMPLEMENT THIS
 		if (indexOfCurrent < tokenList.size()) {
 			currentToken = tokenList.get(indexOfCurrent++);
-			return currentToken;
 			// return tokenList.get(++indexOfCurrent);
 		} else {
 			indexOfCurrent++;
 			currentToken = null;
-			return null;
 		}
-
+		return currentToken;
 	}
-	
-
 
 	/**
 	 * Method to remove the current Token from the stream. Note that "current"
@@ -139,7 +134,6 @@ public class TokenStream implements Iterator<Token> {
 		}
 	}
 
-
 	/* Custom methods */
 	public List<Token> getTokenStreamAsList() {
 		return tokenList;
@@ -149,8 +143,18 @@ public class TokenStream implements Iterator<Token> {
 		tokenList.add(newToken);
 	}
 	
+	public Token previous() {
+		if (indexOfCurrent > 0) {
+			currentToken = tokenList.get(--indexOfCurrent);
+		} else {
+			--indexOfCurrent;
+			currentToken = null;
+		}
+		return currentToken;
+	}
+	
 	//Added by Harsh for use in Capitalization filter
-	public void previous() {
+	public void reduceIndex() {
 		indexOfCurrent =indexOfCurrent-1;
 	}
 	public boolean first() {
@@ -159,5 +163,4 @@ public class TokenStream implements Iterator<Token> {
 		else
 			return false;
 	}
-	
 }
