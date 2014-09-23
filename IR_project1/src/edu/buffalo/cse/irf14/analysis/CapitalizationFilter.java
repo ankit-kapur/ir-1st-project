@@ -84,7 +84,7 @@ public class CapitalizationFilter extends TokenFilter {
 					tStream.next();
 					Token tokens1=tStream.getCurrent();
 					token1=tokens1.getTermText();
-					tStream.previous();
+					tStream.reduceIndex();
 					char fc1=token1.charAt(0);
 					char fc=token.charAt(0);
 					if(fc1==Character.toUpperCase(fc1) && fc==Character.toUpperCase(fc))

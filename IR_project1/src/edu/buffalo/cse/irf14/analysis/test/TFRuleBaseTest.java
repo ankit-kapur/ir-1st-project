@@ -16,14 +16,14 @@ public class TFRuleBaseTest {
 		TokenStream tstream = tkizer.consume(str);
 		TokenFilterFactory factory = TokenFilterFactory.getInstance();
 		TokenFilter filter = factory.getFilterByType(type, tstream);
-
+		
 		while (filter.increment()) {
-			// Do nothing :/
+			//Do nothing :/
 		}
-
+		
 		tstream = filter.getStream();
 		tstream.reset();
-
+		
 		ArrayList<String> list = new ArrayList<String>();
 		String s;
 		Token t;
@@ -33,12 +33,12 @@ public class TFRuleBaseTest {
 
 			if (t != null) {
 				s = t.toString();
-
-				if (s != null && !s.isEmpty())
-					list.add(s);
+				
+				if (s!= null && !s.isEmpty())
+					list.add(s);	
 			}
 		}
-
+		
 		String[] rv = new String[list.size()];
 		rv = list.toArray(rv);
 		tkizer = null;
@@ -47,4 +47,5 @@ public class TFRuleBaseTest {
 		list = null;
 		return rv;
 	}
+
 }

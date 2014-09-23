@@ -18,10 +18,10 @@ public class Parser {
 	 * Static method to parse the given file into the Document object
 	 * 
 	 * @param fileName
-	 *                  : The fully qualified filename to be parsed
+	 *             : The fully qualified filename to be parsed
 	 * @return The parsed and fully loaded Document object
 	 * @throws ParserException
-	 *                   In case any error occurs during parsing
+	 *              In case any error occurs during parsing
 	 */
 
 	public static int errorCount = 0;
@@ -31,13 +31,16 @@ public class Parser {
 	public static Document parse(String fileName) throws ParserException {
 		String fileId = null, category = null, title = null, author = null, authorOrg = null, newsDate = null, place = null, content = null;
 		Document document = new Document();
-		
+
 		try {
-			File file = new File(fileName);
+			File file = null;
 			if (fileName == null || fileName.equals("")) {
 				throw new ParserException();
-			} else if (!file.exists()) {
-				throw new ParserException();
+			} else {
+				file = new File(fileName);
+				if (!file.exists()) {
+					throw new ParserException();
+				}
 			}
 
 			int lastPointerPosition = 0;
@@ -56,9 +59,7 @@ public class Parser {
 			fileId = fileName.substring(fileNamePosition);
 
 			/* Category ID */
-			int categoryPosition = fileName.substring(0, fileNamePosition - 1).lastIndexOf("\\") >= 0 ? fileName.substring(0,
-					fileNamePosition - 1).lastIndexOf("\\") + 1 : fileName.substring(0, fileNamePosition - 1)
-					.lastIndexOf("/") + 1;
+			int categoryPosition = fileName.substring(0, fileNamePosition - 1).lastIndexOf("\\") >= 0 ? fileName.substring(0, fileNamePosition - 1).lastIndexOf("\\") + 1 : fileName.substring(0, fileNamePosition - 1).lastIndexOf("/") + 1;
 			category = fileName.substring(categoryPosition, fileNamePosition - 1);
 
 			/* Title */
@@ -116,10 +117,9 @@ public class Parser {
 
 					/* Place */
 					if (fileBody.substring(lastPointerPosition, dateStartPosition).lastIndexOf(",") >= 0) {
-						int placeEndPosition = fileBody.substring(lastPointerPosition, dateStartPosition)
-								.lastIndexOf(",") + lastPointerPosition;
+						int placeEndPosition = fileBody.substring(lastPointerPosition, dateStartPosition).lastIndexOf(",") + lastPointerPosition;
 						place = fileBody.substring(lastPointerPosition, placeEndPosition);
-						tempMap.put(category + "-" + fileId, place);
+						// tempMap.put(category + "-" + fileId, place);
 						placeCount++;
 					}
 					lastPointerPosition = dateEndPosition;
@@ -143,22 +143,22 @@ public class Parser {
 				System.out.println("Place: " + place);
 				System.out.println("Content: " + content);
 			}
-	if(fileId!=null)
- 			document.setField(FieldNames.FILEID, fileId);
-			if(category!=null)
- 			document.setField(FieldNames.CATEGORY, category);
-			if(title!=null)
- 			document.setField(FieldNames.TITLE, title);
-			if(author!=null)
- 			document.setField(FieldNames.AUTHOR, author);
-			if(authorOrg!=null)
- 			document.setField(FieldNames.AUTHORORG, authorOrg);
-			if(place!=null)
- 			document.setField(FieldNames.PLACE, place);
-			if(newsDate!=null)
- 			document.setField(FieldNames.NEWSDATE, newsDate);
-			if(content!=null)
- 			document.setField(FieldNames.CONTENT, content);
+			if (fileId != null)
+				document.setField(FieldNames.FILEID, fileId);
+			if (category != null)
+				document.setField(FieldNames.CATEGORY, category);
+			if (title != null)
+				document.setField(FieldNames.TITLE, title);
+			if (author != null)
+				document.setField(FieldNames.AUTHOR, author);
+			if (authorOrg != null)
+				document.setField(FieldNames.AUTHORORG, authorOrg);
+			if (place != null)
+				document.setField(FieldNames.PLACE, place);
+			if (newsDate != null)
+				document.setField(FieldNames.NEWSDATE, newsDate);
+			if (content != null)
+				document.setField(FieldNames.CONTENT, content);
 		} catch (StringIndexOutOfBoundsException e) {
 			e.printStackTrace();
 			errorCount++;
