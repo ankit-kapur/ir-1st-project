@@ -49,6 +49,8 @@ public class TokenFilterFactory {
 			return new SpecialCharFilter(stream);
 		if(type==TokenFilterType.CAPITALIZATION)
 			return new CapitalizationFilter(stream);//To be changed
+		if(type==TokenFilterType.SYMBOL)
+			return new SymbolFilter(stream);
 		else 
 			return null;
 			
