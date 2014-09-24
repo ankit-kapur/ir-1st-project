@@ -87,6 +87,13 @@ public class StemmerFilter extends TokenFilter {
 	public TokenStream getStream() {
 		return tokenStream;
 	}
+
+
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 }
 class Stemmer
 {  private char[] b;

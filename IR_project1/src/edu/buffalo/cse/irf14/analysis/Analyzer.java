@@ -27,4 +27,6 @@ public interface Analyzer {
 	 * @return The underlying stream
 	 */
 	public abstract TokenStream getStream();
+	
+	public void processThroughFilters();
 }

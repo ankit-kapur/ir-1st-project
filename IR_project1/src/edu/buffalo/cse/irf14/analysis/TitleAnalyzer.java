@@ -25,5 +25,10 @@ public class TitleAnalyzer implements Analyzer {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

@@ -86,5 +86,11 @@ public class SpecialCharFilter extends TokenFilter {
 		return tokenStream;
 	}
 
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

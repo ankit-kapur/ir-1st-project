@@ -42,8 +42,8 @@ public class Runner {
 
 		// String ipDir =
 		// "C:\\Users\\ankit.kapur\\Desktop\\Study material\\newsindexer-master\\news_training\\training\\ankit_test";
-		String ipDir = "C:\\Users\\ankit.kapur\\Desktop\\Study material\\newsindexer-master\\news_training\\training";
-		String indexDir = "C:\\Users\\ankit.kapur\\Desktop\\Study material\\newsindexer-master\\news_training\\indexdata";
+		String ipDir = System.getProperty("user.dir") + File.separatorChar + "training";
+		String indexDir = System.getProperty("user.dir") + File.separatorChar + "indexdir";
 
 		File ipDirectory = new File(ipDir);
 		String[] catDirectories = ipDirectory.list();

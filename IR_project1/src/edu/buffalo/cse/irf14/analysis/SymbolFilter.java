@@ -114,7 +114,7 @@ public class SymbolFilter extends TokenFilter{
 					if(filteredToken!=null)
 					{
 						token2.setTermText(filteredToken);
-						tokenStream.addTokenToStream(token2);
+					tokenStream.addTokenToStream(token2);
 					}
 				}
 				if(hardFlag)
@@ -124,12 +124,12 @@ public class SymbolFilter extends TokenFilter{
 					if(hardString1!=null)
 					{
 						token2.setTermText(hardString1);
-						tokenStream.addTokenToStream(token2);
+					tokenStream.addTokenToStream(token2);
 					}
 					if(hardString2!=null)
 					{
-						token3.setTermText(hardString2);
-						tokenStream.addTokenToStream(token3);
+					token3.setTermText(hardString2);
+					tokenStream.addTokenToStream(token3);
 					}
 				}
 
@@ -161,6 +161,13 @@ public class SymbolFilter extends TokenFilter{
 	public TokenStream getStream() {
 		// TODO Auto-generated method stub
 		return tokenStream;
+	}
+
+
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

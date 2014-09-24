@@ -47,11 +47,17 @@ public class DateFilter extends TokenFilter {
 
 	@Override
 	public TokenStream getStream() {
-		return processFilterForToken();
+		TokenStream modifiedStream = null; 
+		try {
+			modifiedStream = processFilterForToken();
+		} catch (FilterException e) {
+			System.err.println(e.getMessage());
+		}
+		return modifiedStream;
 	}
 
 	@SuppressWarnings("deprecation")
-	public TokenStream processFilterForToken() {
+	public TokenStream processFilterForToken() throws FilterException {
 
 		TokenStream modifiedTokenStream = null;
 		tokenStreamString = tokenStreamString.trim();
@@ -68,7 +74,6 @@ public class DateFilter extends TokenFilter {
 			boolean validDate = false;
 			String newDateString = null;
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("Found: " + dateFound);
 
 			String time = matcher.group(1);
 			String dateString = matcher.group(14);
@@ -79,7 +84,6 @@ public class DateFilter extends TokenFilter {
 			df.setLenient(false);
 			String testDateString = dateString + " " + time;
 			try {
-				System.out.println(testDateString);
 				df.parse(testDateString);
 				validDate = true;
 			} catch (ParseException e) {
@@ -108,9 +112,7 @@ public class DateFilter extends TokenFilter {
 				newDateString = yearString + month + dayOfMonth + "@" + hour + ":" + minute + ":" + seconds;
 
 				twoTokensCaseOccured = true;
-				System.out.println("VALID date 2");
 				changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), newDateString);
-				System.out.println("Modified 2: " + changedString);
 			}
 		}
 		tokenStreamString = changedString.toString();
@@ -122,7 +124,6 @@ public class DateFilter extends TokenFilter {
 			offset = changedString.length() - tokenStreamString.length();
 			boolean validDate = false;
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound 2: " + dateFound);
 
 			SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy");
 			df.setLenient(false);
@@ -141,7 +142,6 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date");
 					continue;
 				}
 			}
@@ -156,9 +156,7 @@ public class DateFilter extends TokenFilter {
 
 				newDateString = yearString + month + dayOfMonth;
 
-				System.out.println("VALID date");
 				changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), newDateString);
-				System.out.println("Modified: " + changedString);
 			}
 		}
 		tokenStreamString = changedString.toString();
@@ -170,14 +168,9 @@ public class DateFilter extends TokenFilter {
 			offset = changedString.length() - tokenStreamString.length();
 			boolean validDate = false;
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound: " + dateFound);
 
 			String newDateString = null;
 			String testDateString = dateFound;
-
-			// for (int i = 0; i < matcher.groupCount(); i++)
-			// System.out.println("matcher.group(" + i + "): " +
-			// matcher.group(i));
 
 			int year = (matcher.group(15) == null) ? 1900 : Integer.parseInt(matcher.group(15));
 
@@ -208,9 +201,7 @@ public class DateFilter extends TokenFilter {
 
 				newDateString = yearString + month + dayOfMonth;
 
-				System.out.println("VALID date");
 				changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), newDateString);
-				System.out.println("Modified: " + changedString);
 			}
 		}
 		tokenStreamString = changedString.toString();
@@ -221,12 +212,10 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound: " + dateFound);
 
 			int year = matcher.group(1) != null ? Integer.parseInt(matcher.group(1)) : 0;
 			String yearString = String.format("%04d", year);
 			changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), "-" + yearString + "0101");
-			System.out.println("Modified: " + changedString);
 		}
 		tokenStreamString = changedString.toString();
 		changedString = new StringBuffer(tokenStreamString);
@@ -236,12 +225,10 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound: " + dateFound);
 
 			int year = matcher.group(1) != null ? Integer.parseInt(matcher.group(1)) : 0;
 			String yearString = String.format("%04d", year);
 			changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), yearString + "0101");
-			System.out.println("Modified: " + changedString);
 		}
 		tokenStreamString = changedString.toString();
 		changedString = new StringBuffer(tokenStreamString);
@@ -251,13 +238,11 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound: " + dateFound);
 
 			String yearString1 = matcher.group(1);
 			String yearString2 = yearString1.substring(0, 2) + matcher.group(3);
 
 			changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), yearString1 + "0101-" + yearString2 + "0101");
-			System.out.println("Modified: " + changedString);
 		}
 		tokenStreamString = changedString.toString();
 		changedString = new StringBuffer(tokenStreamString);
@@ -267,7 +252,6 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound: " + dateFound);
 
 			SimpleDateFormat df = new SimpleDateFormat("hh:mm aa");
 			df.setLenient(false);
@@ -295,14 +279,12 @@ public class DateFilter extends TokenFilter {
 				Date date = new Date(testDateString);
 				Calendar calendar = new GregorianCalendar();
 				calendar.setTime(date);
-				System.out.println("VALID time");
 
 				String hour = String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY));
 				String minute = String.format("%02d", calendar.get(Calendar.MINUTE));
 				String seconds = String.format("%02d", calendar.get(Calendar.SECOND));
 
 				changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), (hour + ":" + minute + ":" + seconds));
-				System.out.println("Modified: " + changedString);
 			}
 		}
 		tokenStreamString = changedString.toString();
@@ -313,7 +295,6 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound: " + dateFound);
 
 			Date date = new Date(dateFound + " 1900");
 			Calendar calendar = new GregorianCalendar();
@@ -323,7 +304,6 @@ public class DateFilter extends TokenFilter {
 			String dayOfMonth = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
 
 			changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), (1900 + month + dayOfMonth));
-			System.out.println("Modified: " + changedString);
 		}
 		tokenStreamString = changedString.toString();
 		changedString = new StringBuffer(tokenStreamString);
@@ -333,10 +313,8 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
-			System.out.println("\nFound: " + dateFound);
 
 			changedString = changedString.replace(offset + matcher.start(), offset + matcher.end(), dateFound + "0101");
-			System.out.println("Modified: " + changedString);
 		}
 		tokenStreamString = changedString.toString();
 		changedString = new StringBuffer(tokenStreamString);
@@ -358,7 +336,7 @@ public class DateFilter extends TokenFilter {
 				}
 			}
 		} catch (TokenizerException e) {
-			System.err.println("A Tokenizer exception occured in the consume method, while tokenizing the string: " + tokenStreamString);
+			throw new FilterException("A Tokenizer exception occured in the consume method, while tokenizing the string: " + tokenStreamString);
 		}
 
 		return modifiedTokenStream;
@@ -401,5 +379,11 @@ public class DateFilter extends TokenFilter {
 		/* 1948 --> 19480101 */
 		datePatternString.add("(?<![\\d\\w])(\\d\\d\\d\\d)(?![\\w\\d-])");
 		datePattern8 = Pattern.compile(datePatternString.get(8));
+	}
+
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
 	}
 }

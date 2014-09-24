@@ -20,7 +20,7 @@ public class Parser {
 	 * @param fileName
 	 *             : The fully qualified filename to be parsed
 	 * @return The parsed and fully loaded Document object
-	 * @throws ParserException
+	 * @throws FilterException
 	 *              In case any error occurs during parsing
 	 */
 
