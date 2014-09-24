@@ -40,6 +40,7 @@ public class TokenFilterFactory {
 	 */
 	public TokenFilter getFilterByType(TokenFilterType type, TokenStream stream) {
 		// TODO : YOU MUST IMPLEMENT THIS METHOD
+		
 		if (type == TokenFilterType.ACCENT)
 			return new AccentFilter(stream);
 		else if (type == TokenFilterType.NUMERIC)
@@ -58,5 +59,6 @@ public class TokenFilterFactory {
 			return new SymbolFilter(stream);
 		else
 			return null;
+
 	}
 }

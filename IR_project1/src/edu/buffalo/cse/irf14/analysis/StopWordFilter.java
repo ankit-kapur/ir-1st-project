@@ -139,19 +139,26 @@ public class StopWordFilter extends TokenFilter{
 		stopWordMap.add("you");
 		stopWordMap.add("your");
 	}
-	public TokenStream stopWordFilter(TokenStream tStream)
+	public TokenStream stopWordFilter(TokenStream tStream) throws FilterException
 	{
-		while(tStream.hasNext())
+		try
 		{
-			tStream.next();
-			Token tokens=tStream.getCurrent();
-			String token=tokens.getTermText();
-			if(!stopWordMap.contains(token))
+			while(tStream.hasNext())
 			{
-				Token token2 = new Token();
-				token2.setTermText(token);
-				tokenStream.addTokenToStream(token2);
+				tStream.next();
+				Token tokens=tStream.getCurrent();
+				String token=tokens.getTermText();
+				if(!stopWordMap.contains(token))
+				{
+					Token token2 = new Token();
+					token2.setTermText(token);
+					tokenStream.addTokenToStream(token2);
+				}
 			}
+		}
+		catch(Exception e)
+		{
+			throw new FilterException("Exception in Stop Word Filter");
 		}
 		return tokenStream;		
 	}
@@ -163,11 +170,18 @@ public class StopWordFilter extends TokenFilter{
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		stopWordFilter(tStream);
-		if(tStream.hasNext())
-			return true;
-		else
-			return false;
+		try{
+			stopWordFilter(tStream);
+			if(tStream.hasNext())
+				return true;
+			else
+				return false;
+		}
+		catch(FilterException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
 

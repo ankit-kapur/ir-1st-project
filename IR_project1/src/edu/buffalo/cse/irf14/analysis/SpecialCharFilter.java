@@ -14,53 +14,67 @@ public class SpecialCharFilter extends TokenFilter {
 	}
 	TokenStream tokenStream=new TokenStream();
 
-	public TokenStream specialCharFilter(TokenStream tStream)
+	public TokenStream specialCharFilter(TokenStream tStream) throws FilterException
 	{
-		boolean matcherFlag;
-		int digitCount=0;
-		String filteredToken=null;
-		while(tStream.hasNext())
+		try
 		{
-			matcherFlag=false;
-			tStream.next();
-			Token tokens=tStream.getCurrent();
-			String token=tokens.getTermText();
-			Pattern pattern = Pattern.compile("[^a-zA-Z]");
-			Matcher matcher=pattern.matcher(token);
-			if(matcher.find())
+			boolean matcherFlag;
+			int digitCount=0;
+			String filteredToken=null;
+			while(tStream.hasNext())
 			{
-				matcherFlag=true;
-				filteredToken=token.replaceAll("[~!@=#$%^&*()_+\\;\',/{}|:\"<>?\\\\/]", "");
-
-				if(filteredToken.contains("-"))
+				matcherFlag=false;
+				tStream.next();
+				Token tokens=tStream.getCurrent();
+				String token=tokens.getTermText();
+				Pattern pattern = Pattern.compile("[^a-zA-Z]");
+				Matcher matcher=pattern.matcher(token);
+				if(matcher.find())
 				{
-					for(char c : filteredToken.toCharArray()){
-						if(Character.isDigit(c))
-							digitCount++;
-					}
-					if(digitCount==0)
+					matcherFlag=true;
+					filteredToken=token.replaceAll("[~!@=#$%^&*()_+\\;\',/{}|:\"<>?\\\\/]", "");
+
+					if(filteredToken.contains("-"))
 					{
-						filteredToken=filteredToken.replaceAll("[~!@=#$%^&--*()_+\\;\',/{}|:\"<>?]", "");
+						for(char c : filteredToken.toCharArray()){
+							if(Character.isDigit(c))
+								digitCount++;
+						}
+						if(digitCount==0)
+						{
+							filteredToken=filteredToken.replaceAll("[~!@=#$%^&--*()_+\\;\',/{}|:\"<>?]", "");
+						}
 					}
 				}
+				Token token2 = new Token();
+				if(matcherFlag)
+					token2.setTermText(filteredToken);
+				else
+					token2.setTermText(token);
+				tokenStream.addTokenToStream(token2);
 			}
-			Token token2 = new Token();
-			if(matcherFlag)
-				token2.setTermText(filteredToken);
-			else
-				token2.setTermText(token);
-			tokenStream.addTokenToStream(token2);
+		}
+		catch (Exception e)
+		{
+			throw new FilterException("Exception in Special Character Filter");
 		}
 		return tokenStream;		
 	}
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		specialCharFilter(tStream);
-		if(tStream.hasNext())
-			return true;
-		else
-			return false;
+		try{
+			specialCharFilter(tStream);
+			if(tStream.hasNext())
+				return true;
+			else
+				return false;
+		}
+		catch(FilterException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	@Override

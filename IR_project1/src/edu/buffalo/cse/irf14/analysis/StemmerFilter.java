@@ -16,43 +16,48 @@ public class StemmerFilter extends TokenFilter {
 		// TODO Auto-generated constructor stub
 	}
 	TokenStream tokenStream=new TokenStream();
-	public TokenStream stemmerFilter(TokenStream tStream)
+	public TokenStream stemmerFilter(TokenStream tStream) throws FilterException
 	{
-
-		Stemmer stemmer=new Stemmer();
-		String stemmedToken=null;
-		boolean stemFlag=false;
-		String token=null;
-		while(tStream.hasNext())
-		{
-			tStream.next();
-			Token tokens=tStream.getCurrent();
-			token=tokens.getTermText();
-			char[] s=token.toCharArray();
-			if(Character.isAlphabetic(s[0]))
+		try{
+			Stemmer stemmer=new Stemmer();
+			String stemmedToken=null;
+			boolean stemFlag=false;
+			String token=null;
+			while(tStream.hasNext())
 			{
-				for(int i=0;i<s.length;i++)
+				tStream.next();
+				Token tokens=tStream.getCurrent();
+				token=tokens.getTermText();
+				char[] s=token.toCharArray();
+				if(Character.isAlphabetic(s[0]))
 				{
-					if (Character.isLetter(s[i]))
+					for(int i=0;i<s.length;i++)
 					{
-						for(int j=0;j<s.length;j++)
+						if (Character.isLetter(s[i]))
 						{
-							stemFlag=true;
-							for (int c = 0; c < s.length; c++)
-								stemmer.add(s[c]);
-							stemmer.stem();
-							stemmedToken=stemmer.toString();
+							for(int j=0;j<s.length;j++)
+							{
+								stemFlag=true;
+								for (int c = 0; c < s.length; c++)
+									stemmer.add(s[c]);
+								stemmer.stem();
+								stemmedToken=stemmer.toString();
+							}
 						}
 					}
 				}
-			}
-			Token token2 = new Token();
-			if(stemFlag)
-				token2.setTermText(stemmedToken);
-			else
-				token2.setTermText(token);
-			tokenStream.addTokenToStream(token2);
+				Token token2 = new Token();
+				if(stemFlag)
+					token2.setTermText(stemmedToken);
+				else
+					token2.setTermText(token);
+				tokenStream.addTokenToStream(token2);
 
+			}
+		}
+		catch (Exception e)
+		{
+			throw new FilterException("Exception in Stemmer Filter");
 		}
 		return tokenStream;
 	}
@@ -60,13 +65,21 @@ public class StemmerFilter extends TokenFilter {
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		stemmerFilter(tStream);
-		if(tStream.hasNext())
-			return true;
-		else
-			return false;
-	}
+		try
+		{
+			stemmerFilter(tStream);
+			if(tStream.hasNext())
+				return true;
+			else
+				return false;
+		}
 
+		catch(FilterException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
+	}
 	@Override
 	public TokenStream getStream() {
 		return tokenStream;

@@ -95,63 +95,75 @@ public class AccentFilter extends TokenFilter {
 		accentMap.put("ﬄ", "ffl");
 		accentMap.put("ﬅ", "ft");
 		accentMap.put("ﬆ", "st");
-		
+
 	}
-	public TokenStream accentFilter(TokenStream tStream)
+	public TokenStream accentFilter(TokenStream tStream) throws FilterException
 	{
-		String finalString=null;
-		String filterString=null;
-		while(tStream.hasNext())
-		{
-			tStream.next();
-			accentFlag=false;
-			String mapKey=null;
-			int count=0;
-			Token tokens=tStream.getCurrent();
-			String token=tokens.getTermText();
-			String[] filter=token.split("");
-			String value=null;
-			for(String s:filter)
+		try{
+			String finalString=null;
+			String filterString=null;
+			while(tStream.hasNext())
 			{
-				if(accentMap.containsKey(s))
+				tStream.next();
+				accentFlag=false;
+				String mapKey=null;
+				int count=0;
+				Token tokens=tStream.getCurrent();
+				String token=tokens.getTermText();
+				String[] filter=token.split("");
+				String value=null;
+				for(String s:filter)
 				{
-					for(String key: accentMap.keySet())
+					if(accentMap.containsKey(s))
 					{
-						value=accentMap.get(s);
-						if(key.equals(s))
+						for(String key: accentMap.keySet())
 						{
-							mapKey=key;
-							accentFlag=true;
-							count++;
-							break;
+							value=accentMap.get(s);
+							if(key.equals(s))
+							{
+								mapKey=key;
+								accentFlag=true;
+								count++;
+								break;
+							}
 						}
+						filterString=mapKey;
+						if(count<2)
+							finalString=token.replace(filterString,value);
+						if(count>=2)
+							finalString=finalString.replace(filterString,value);
 					}
-					filterString=mapKey;
-					if(count<2)
-					finalString=token.replace(filterString,value);
-					if(count>=2)
-					finalString=finalString.replace(filterString,value);
 				}
+				Token token2 = new Token();
+				if(accentFlag)
+					token2.setTermText(finalString);
+				else
+					token2.setTermText(token);
+				tokenStream.addTokenToStream(token2);
 			}
-			Token token2 = new Token();
-			if(accentFlag)
-			token2.setTermText(finalString);
-			else
-			token2.setTermText(token);
-			tokenStream.addTokenToStream(token2);
+		}
+		catch(Exception e)
+		{
+			throw new FilterException("Exception in Accent Filter");
 		}
 		return tokenStream;		
 	}
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		accentFilter(tStream);
-		if(tStream.hasNext())
-			return true;
-		else
-			return false;
+		try{
+			accentFilter(tStream);
+			if(tStream.hasNext())
+				return true;
+			else
+				return false;
+		}
+		catch(FilterException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
-
 	@Override
 	public TokenStream getStream() {
 		return tokenStream;
