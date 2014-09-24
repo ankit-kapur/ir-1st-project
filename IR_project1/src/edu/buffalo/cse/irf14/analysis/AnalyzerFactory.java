@@ -3,6 +3,8 @@
  */
 package edu.buffalo.cse.irf14.analysis;
 
+import edu.buffalo.cse.irf14.analysis.analyzer.AuthorAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.TitleAnalyzer;
 import edu.buffalo.cse.irf14.document.FieldNames;
 
 /**
@@ -10,6 +12,8 @@ import edu.buffalo.cse.irf14.document.FieldNames;
  * This factory class is responsible for instantiating "chained" {@link Analyzer} instances
  */
 public class AnalyzerFactory {
+	
+	private static AnalyzerFactory factoryInstance;
 	/**
 	 * Static method to return an instance of the factory class.
 	 * Usually factory classes are defined as singletons, i.e. 
@@ -23,8 +27,10 @@ public class AnalyzerFactory {
 	 */
 	public static AnalyzerFactory getInstance() {
 		//TODO: YOU NEED TO IMPLEMENT THIS METHOD
-		AnalyzerFactory analyzerFactory= new AnalyzerFactory();
-		return analyzerFactory;
+		if (factoryInstance == null) {
+			factoryInstance = new AnalyzerFactory();
+		}
+		return factoryInstance;
 	}
 	
 	/**
@@ -39,9 +45,11 @@ public class AnalyzerFactory {
 	 * null otherwise
 	 */
 	public Analyzer getAnalyzerForField(FieldNames name, TokenStream stream) {
-		//TODO : YOU NEED TO IMPLEMENT THIS METHOD
-		if(name.equals("TITLE"))
-		return new TitleAnalyzer(stream);
-		return null;
+		if (name == FieldNames.TITLE)
+			return new TitleAnalyzer(stream);
+		if (name == FieldNames.AUTHOR)
+			return new AuthorAnalyzer(stream);
+		else 
+			return null;
 	}
 }

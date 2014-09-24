@@ -144,6 +144,7 @@ public class AccentFilter extends TokenFilter {
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			throw new FilterException("Exception in Accent Filter");
 		}		
 	}
@@ -166,6 +167,12 @@ public class AccentFilter extends TokenFilter {
 	@Override
 	public TokenStream getStream() {
 		return tokenStream;
+	}
+
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

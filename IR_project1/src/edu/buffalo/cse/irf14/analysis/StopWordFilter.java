@@ -183,5 +183,10 @@ public class StopWordFilter extends TokenFilter{
 		}
 		return false;
 	}
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
+	}
 }
 

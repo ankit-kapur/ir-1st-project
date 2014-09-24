@@ -133,4 +133,10 @@ public class CapitalizationFilter extends TokenFilter {
 		return tokenStream;
 	}
 
+	@Override
+	public void processThroughFilters() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
