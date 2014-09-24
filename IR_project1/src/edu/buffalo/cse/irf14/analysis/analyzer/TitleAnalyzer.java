@@ -35,6 +35,7 @@ public class TitleAnalyzer implements Analyzer {
 
 		/* Order of filters */
 		filterTypeList.add(TokenFilterType.DATE);
+		filterTypeList.add(TokenFilterType.SYMBOL);
 		filterTypeList.add(TokenFilterType.STEMMER);
 		
 		for (TokenFilterType filterType : filterTypeList) {

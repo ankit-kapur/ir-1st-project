@@ -1,0 +1,29 @@
+﻿Created analyzers. Filters need fixing for null-token cases
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	new file:   IR_project1/indexdir/titleindex
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/Runner.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/AccentFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/Analyzer.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/AnalyzerFactory.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/CapitalizationFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/DateFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/FilterException.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/NumberFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/SpecialCharFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/StemmerFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/StopWordFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/SymbolFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/TokenFilterFactory.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/TokenizerException.java
+#	new file:   IR_project1/src/edu/buffalo/cse/irf14/analysis/analyzer/AuthorAnalyzer.java
+#	new file:   IR_project1/src/edu/buffalo/cse/irf14/analysis/analyzer/TitleAnalyzer.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/document/Parser.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/IndexWriter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/test/IndexerTest.java
+#
+
