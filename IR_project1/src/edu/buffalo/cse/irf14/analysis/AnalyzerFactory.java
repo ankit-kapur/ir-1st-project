@@ -23,7 +23,8 @@ public class AnalyzerFactory {
 	 */
 	public static AnalyzerFactory getInstance() {
 		//TODO: YOU NEED TO IMPLEMENT THIS METHOD
-		return null;
+		AnalyzerFactory analyzerFactory= new AnalyzerFactory();
+		return analyzerFactory;
 	}
 	
 	/**

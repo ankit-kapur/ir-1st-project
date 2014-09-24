@@ -47,9 +47,10 @@ public class StemmerFilter extends TokenFilter {
 					}
 				}
 				Token token2 = new Token();
-				if(stemFlag)
+				if(stemFlag && stemmedToken!=null)
 					token2.setTermText(stemmedToken);
 				else
+					if(token!=null)
 					token2.setTermText(token);
 				tokenStream.addTokenToStream(token2);
 

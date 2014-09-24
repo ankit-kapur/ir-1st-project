@@ -43,9 +43,9 @@ public class NumberFilter extends TokenFilter{
 					filteredToken=sb.toString();
 				}
 				Token token2 = new Token();
-				if(matcherFlag && count>0)
+				if(matcherFlag && count>0 && filteredToken!=null )
 					token2.setTermText(filteredToken);
-				else if(!matcherFlag &&count==0)
+				else if(!matcherFlag &&count==0 && token!=null)
 					token2.setTermText(token);
 				tokenStream.addTokenToStream(token2);
 			}

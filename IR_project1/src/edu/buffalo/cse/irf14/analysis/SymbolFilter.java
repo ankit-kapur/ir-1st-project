@@ -35,8 +35,6 @@ public class SymbolFilter extends TokenFilter{
 		int digitCount=0,alphacount=0;
 		boolean apostropheFlag=false,digitFlag=false,alphaFlag=false,hardFlag=false;
 		try{
-
-
 			while(tStream.hasNext())
 			{
 				tStream.next();
@@ -113,6 +111,7 @@ public class SymbolFilter extends TokenFilter{
 				if(filteredToken!=null && !filteredToken.equals("") && !filteredToken.equals(" ") &&!hardFlag)
 				{
 					Token token2 = new Token();
+					if(filteredToken!=null)
 					token2.setTermText(filteredToken);
 					tokenStream.addTokenToStream(token2);
 				}
@@ -120,7 +119,9 @@ public class SymbolFilter extends TokenFilter{
 				{
 					Token token2 = new Token();
 					Token token3 = new Token();
+					if(hardString1!=null)
 					token2.setTermText(hardString1);
+					if(hardString2!=null)
 					token3.setTermText(hardString2);
 					tokenStream.addTokenToStream(token2);
 					tokenStream.addTokenToStream(token3);

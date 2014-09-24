@@ -135,9 +135,10 @@ public class AccentFilter extends TokenFilter {
 					}
 				}
 				Token token2 = new Token();
-				if(accentFlag)
+				if(accentFlag && finalString!=null)
 					token2.setTermText(finalString);
 				else
+					if(token!=null)
 					token2.setTermText(token);
 				tokenStream.addTokenToStream(token2);
 			}

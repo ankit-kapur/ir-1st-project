@@ -99,9 +99,10 @@ public class CapitalizationFilter extends TokenFilter {
 
 			}
 			Token token2 = new Token();
-			if(!allCapsFlag && !firstWordCaps && !adjacentLetterCaps && !adjacentwordCaps)
+			if(!allCapsFlag && !firstWordCaps && !adjacentLetterCaps && !adjacentwordCaps && filteredToken!=null)
 				token2.setTermText(filteredToken.toLowerCase());
 			else
+				if(filteredToken!=null)
 				token2.setTermText(filteredToken);
 			tokenStream.addTokenToStream(token2);
 		}
