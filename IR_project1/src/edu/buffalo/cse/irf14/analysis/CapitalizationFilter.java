@@ -10,13 +10,12 @@ public class CapitalizationFilter extends TokenFilter {
 		// TODO Auto-generated constructor stub
 	}
 	TokenStream tokenStream=new TokenStream();
-	public TokenStream captilizationFilter(TokenStream tStream) throws FilterException
+	public void captilizationFilter(TokenStream tStream) throws FilterException
 	{
 		try{
-		String filteredToken=null;
-		boolean allCapsFlag,adjacentLetterCaps,adjacentwordCaps,firstWordCaps;
-		while(tStream.hasNext())
-		{
+			String filteredToken=null;
+			boolean allCapsFlag,adjacentLetterCaps,adjacentwordCaps,firstWordCaps;
+
 			allCapsFlag=false;
 			adjacentLetterCaps=false;
 			firstWordCaps=false;
@@ -103,25 +102,24 @@ public class CapitalizationFilter extends TokenFilter {
 				token2.setTermText(filteredToken.toLowerCase());
 			else
 				if(filteredToken!=null)
-				token2.setTermText(filteredToken);
+					token2.setTermText(filteredToken);
 			tokenStream.addTokenToStream(token2);
-		}
+
 		}
 		catch(Exception e)
 		{
 			throw new FilterException("Exception in Capitilization Filter");
 		}
-		return tokenStream;
 	}	
 
 	@Override
 	public boolean increment() throws TokenizerException {
 		try{
-		captilizationFilter(tStream);
-		if(tStream.hasNext())
-			return true;
-		else
-			return false;
+			captilizationFilter(tStream);
+			if(tStream.hasNext())
+				return true;
+			else
+				return false;
 		}
 		catch(FilterException e)
 		{

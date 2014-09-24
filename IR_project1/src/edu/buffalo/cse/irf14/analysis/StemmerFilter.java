@@ -16,15 +16,13 @@ public class StemmerFilter extends TokenFilter {
 		// TODO Auto-generated constructor stub
 	}
 	TokenStream tokenStream=new TokenStream();
-	public TokenStream stemmerFilter(TokenStream tStream) throws FilterException
+	public void stemmerFilter(TokenStream tStream) throws FilterException
 	{
 		try{
 			Stemmer stemmer=new Stemmer();
 			String stemmedToken=null;
 			boolean stemFlag=false;
 			String token=null;
-			while(tStream.hasNext())
-			{
 				tStream.next();
 				Token tokens=tStream.getCurrent();
 				token=tokens.getTermText();
@@ -54,13 +52,12 @@ public class StemmerFilter extends TokenFilter {
 					token2.setTermText(token);
 				tokenStream.addTokenToStream(token2);
 
-			}
+			
 		}
 		catch (Exception e)
 		{
 			throw new FilterException("Exception in Stemmer Filter");
 		}
-		return tokenStream;
 	}
 
 

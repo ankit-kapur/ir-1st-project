@@ -29,14 +29,12 @@ public class SymbolFilter extends TokenFilter{
 		contractionsMap.put("She'll","She will");
 		contractionsMap.put("'em","them");
 	}
-	public TokenStream symbolFilter(TokenStream tStream) throws FilterException
+	public void symbolFilter(TokenStream tStream) throws FilterException
 	{
 		String filteredToken=null,hardString1=null,hardString2=null;
 		int digitCount=0,alphacount=0;
 		boolean apostropheFlag=false,digitFlag=false,alphaFlag=false,hardFlag=false;
 		try{
-			while(tStream.hasNext())
-			{
 				tStream.next();
 				apostropheFlag=false;
 				alphaFlag=false;
@@ -127,13 +125,12 @@ public class SymbolFilter extends TokenFilter{
 					tokenStream.addTokenToStream(token3);
 				}
 
-			}
+			
 		}
 		catch(Exception e)
 		{
 			throw new FilterException("Exception in Symbol Filter");
-		}
-		return tokenStream;		
+		}		
 	}
 
 

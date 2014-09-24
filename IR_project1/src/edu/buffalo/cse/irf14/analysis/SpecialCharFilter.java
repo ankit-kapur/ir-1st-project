@@ -14,15 +14,13 @@ public class SpecialCharFilter extends TokenFilter {
 	}
 	TokenStream tokenStream=new TokenStream();
 
-	public TokenStream specialCharFilter(TokenStream tStream) throws FilterException
+	public void specialCharFilter(TokenStream tStream) throws FilterException
 	{
 		try
 		{
 			boolean matcherFlag;
 			int digitCount=0;
 			String filteredToken=null;
-			while(tStream.hasNext())
-			{
 				matcherFlag=false;
 				tStream.next();
 				Token tokens=tStream.getCurrent();
@@ -53,13 +51,12 @@ public class SpecialCharFilter extends TokenFilter {
 					if(token!=null)
 					token2.setTermText(token);
 				tokenStream.addTokenToStream(token2);
-			}
+			
 		}
 		catch (Exception e)
 		{
 			throw new FilterException("Exception in Special Character Filter");
-		}
-		return tokenStream;		
+		}		
 	}
 
 	@Override

@@ -15,13 +15,11 @@ public class NumberFilter extends TokenFilter{
 		this.tStream=stream;
 	}
 	TokenStream tokenStream=new TokenStream();
-	public TokenStream numberFilter(TokenStream tStream) throws FilterException
+	public void numberFilter(TokenStream tStream) throws FilterException
 	{
 		try{
 			String filteredToken=null;
 			boolean matcherFlag;
-			while(tStream.hasNext())
-			{
 				matcherFlag=false;
 				int count=0;
 				tStream.next();
@@ -48,13 +46,12 @@ public class NumberFilter extends TokenFilter{
 				else if(!matcherFlag &&count==0 && token!=null)
 					token2.setTermText(token);
 				tokenStream.addTokenToStream(token2);
-			}
+			
 		}
 		catch(Exception e)
 		{
 			throw new FilterException("Exception in Number Filter");
-		}
-		return tokenStream;		
+		}	
 	}
 
 	@Override

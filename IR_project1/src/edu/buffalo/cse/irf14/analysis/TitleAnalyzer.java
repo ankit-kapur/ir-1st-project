@@ -10,8 +10,9 @@ public class TitleAnalyzer implements Analyzer {
 	}
 	public TokenStream titleAnalyzer(TokenStream tokenStream)
 	{
-		return tStream;
-		
+	
+		SymbolFilter symbolFilter=new SymbolFilter(tokenStream);
+		return tokenStream;
 	}
 	@Override
 	public boolean increment() throws TokenizerException {

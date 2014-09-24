@@ -40,6 +40,8 @@ public class AnalyzerFactory {
 	 */
 	public Analyzer getAnalyzerForField(FieldNames name, TokenStream stream) {
 		//TODO : YOU NEED TO IMPLEMENT THIS METHOD
+		if(name.equals("TITLE"))
+		return new TitleAnalyzer(stream);
 		return null;
 	}
 }

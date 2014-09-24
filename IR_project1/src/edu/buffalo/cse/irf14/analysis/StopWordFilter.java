@@ -139,12 +139,11 @@ public class StopWordFilter extends TokenFilter{
 		stopWordMap.add("you");
 		stopWordMap.add("your");
 	}
-	public TokenStream stopWordFilter(TokenStream tStream) throws FilterException
+	public void stopWordFilter(TokenStream tStream) throws FilterException
 	{
 		try
 		{
-			while(tStream.hasNext())
-			{
+			
 				tStream.next();
 				Token tokens=tStream.getCurrent();
 				String token=tokens.getTermText();
@@ -155,13 +154,13 @@ public class StopWordFilter extends TokenFilter{
 					token2.setTermText(token);
 					tokenStream.addTokenToStream(token2);
 				}
-			}
+			
 		}
 		catch(Exception e)
 		{
 			throw new FilterException("Exception in Stop Word Filter");
 		}
-		return tokenStream;		
+				
 	}
 	@Override
 	public TokenStream getStream() {

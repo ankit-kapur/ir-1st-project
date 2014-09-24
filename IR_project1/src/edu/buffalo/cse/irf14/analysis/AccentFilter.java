@@ -97,13 +97,12 @@ public class AccentFilter extends TokenFilter {
 		accentMap.put("ﬆ", "st");
 
 	}
-	public TokenStream accentFilter(TokenStream tStream) throws FilterException
+	public void accentFilter(TokenStream tStream) throws FilterException
 	{
 		try{
 			String finalString=null;
 			String filterString=null;
-			while(tStream.hasNext())
-			{
+			
 				tStream.next();
 				accentFlag=false;
 				String mapKey=null;
@@ -141,13 +140,12 @@ public class AccentFilter extends TokenFilter {
 					if(token!=null)
 					token2.setTermText(token);
 				tokenStream.addTokenToStream(token2);
-			}
+			
 		}
 		catch(Exception e)
 		{
 			throw new FilterException("Exception in Accent Filter");
-		}
-		return tokenStream;		
+		}		
 	}
 
 	@Override
