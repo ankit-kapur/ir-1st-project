@@ -23,9 +23,11 @@ public class StemmerFilter extends TokenFilter {
 			String stemmedToken=null;
 			boolean stemFlag=false;
 			String token=null;
-				tStream.next();
-				Token tokens=tStream.getCurrent();
-				token=tokens.getTermText();
+			tStream.next();
+			Token tokens=tStream.getCurrent();
+			token=tokens.getTermText();
+			if(token!=null)
+			{
 				char[] s=token.toCharArray();
 				if(Character.isAlphabetic(s[0]))
 				{
@@ -46,13 +48,16 @@ public class StemmerFilter extends TokenFilter {
 				}
 				Token token2 = new Token();
 				if(stemFlag && stemmedToken!=null)
+				{
 					token2.setTermText(stemmedToken);
-				else
-					if(token!=null)
+					tokenStream.addTokenToStream(token2);
+				}
+				else if(token!=null)
+				{
 					token2.setTermText(token);
-				tokenStream.addTokenToStream(token2);
-
-			
+					tokenStream.addTokenToStream(token2);
+				}
+			}
 		}
 		catch (Exception e)
 		{

@@ -20,11 +20,13 @@ public class NumberFilter extends TokenFilter{
 		try{
 			String filteredToken=null;
 			boolean matcherFlag;
-				matcherFlag=false;
-				int count=0;
-				tStream.next();
-				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
+			matcherFlag=false;
+			int count=0;
+			tStream.next();
+			Token tokens=tStream.getCurrent();
+			String token=tokens.getTermText();
+			if(token!=null)
+			{
 				Pattern pattern = Pattern.compile("[a-zA-Z]");
 				Matcher matcher=pattern.matcher(token);
 				if(!matcher.find())
@@ -42,11 +44,16 @@ public class NumberFilter extends TokenFilter{
 				}
 				Token token2 = new Token();
 				if(matcherFlag && count>0 && filteredToken!=null )
+				{
 					token2.setTermText(filteredToken);
+					tokenStream.addTokenToStream(token2);
+				}
 				else if(!matcherFlag &&count==0 && token!=null)
+				{
 					token2.setTermText(token);
-				tokenStream.addTokenToStream(token2);
-			
+					tokenStream.addTokenToStream(token2);
+				}
+			}
 		}
 		catch(Exception e)
 		{

@@ -15,7 +15,6 @@ public class CapitalizationFilter extends TokenFilter {
 		try{
 			String filteredToken=null;
 			boolean allCapsFlag,adjacentLetterCaps,adjacentwordCaps,firstWordCaps;
-
 			allCapsFlag=false;
 			adjacentLetterCaps=false;
 			firstWordCaps=false;
@@ -25,86 +24,91 @@ public class CapitalizationFilter extends TokenFilter {
 			tStream.next();
 			Token tokens=tStream.getCurrent();
 			String token=tokens.getTermText();
-
-			//Logic for checking all caps letters
-			for(char c : token.toCharArray()){
-				if(c==Character.toUpperCase(c)){
-					count++;
-				}
-			}
-			if(count!=token.length())
+			if(token!=null)
 			{
-				allCapsFlag=false;
-			}
-			if(count==token.length())
-			{
-				filteredToken=token;
-				allCapsFlag=true;
-			}
-			//Logic for checking adjacent caps letters in a single word
-			if(!allCapsFlag)
-			{
-				adjacentLetterCaps=false;
+				//Logic for checking all caps letters
 				for(char c : token.toCharArray()){
 					if(c==Character.toUpperCase(c)){
-						count1++;
+						count++;
 					}
-					if(count1==2)
+				}
+				if(count!=token.length())
+				{
+					allCapsFlag=false;
+				}
+				if(count==token.length())
+				{
+					filteredToken=token;
+					allCapsFlag=true;
+				}
+				//Logic for checking adjacent caps letters in a single word
+				if(!allCapsFlag)
+				{
+					adjacentLetterCaps=false;
+					for(char c : token.toCharArray()){
+						if(c==Character.toUpperCase(c)){
+							count1++;
+						}
+						if(count1==2)
+						{
+							adjacentLetterCaps=true;
+							break;
+						}
+					}
+					if(adjacentLetterCaps)
 					{
-						adjacentLetterCaps=true;
-						break;
+						filteredToken=token;
 					}
 				}
-				if(adjacentLetterCaps)
-				{
-					filteredToken=token;
-				}
-			}
 
-			//Logic for checking if its the first word and is it capitalized
-			if(!allCapsFlag && !adjacentLetterCaps)
-			{
-				char fc=token.charAt(0);
-				firstWordCaps=false;
-				if(fc==Character.toUpperCase(fc) && tStream.first())
+				//Logic for checking if its the first word and is it capitalized
+				if(!allCapsFlag && !adjacentLetterCaps)
 				{
-					filteredToken=token.toLowerCase();
-					firstWordCaps=true;
-				}
-				else
-				{
-					filteredToken=token;
-				}
-			}
-			if(!allCapsFlag && !adjacentLetterCaps)
-			{
-				if(tStream.hasNext())
-				{
-					adjacentwordCaps=false;
-					tStream.next();
-					Token tokens1=tStream.getCurrent();
-					token1=tokens1.getTermText();
-					tStream.reduceIndex();
-					char fc1=token1.charAt(0);
 					char fc=token.charAt(0);
-					if(fc1==Character.toUpperCase(fc1) && fc==Character.toUpperCase(fc))
+					firstWordCaps=false;
+					if(fc==Character.toUpperCase(fc) && tStream.first())
 					{
-						filteredToken=token+" "+token1;
-						adjacentwordCaps=true;
+						filteredToken=token.toLowerCase();
+						firstWordCaps=true;
+					}
+					else
+					{
+						filteredToken=token;
+					}
+				}
+				if(!allCapsFlag && !adjacentLetterCaps)
+				{
+					if(tStream.hasNext())
+					{
+						adjacentwordCaps=false;
 						tStream.next();
-					}	
+						Token tokens1=tStream.getCurrent();
+						token1=tokens1.getTermText();
+						tStream.reduceIndex();
+						char fc1=token1.charAt(0);
+						char fc=token.charAt(0);
+						if(fc1==Character.toUpperCase(fc1) && fc==Character.toUpperCase(fc))
+						{
+							filteredToken=token+" "+token1;
+							adjacentwordCaps=true;
+							tStream.next();
+						}	
+
+					}
 
 				}
-
-			}
-			Token token2 = new Token();
-			if(!allCapsFlag && !firstWordCaps && !adjacentLetterCaps && !adjacentwordCaps && filteredToken!=null)
-				token2.setTermText(filteredToken.toLowerCase());
-			else
-				if(filteredToken!=null)
+				Token token2 = new Token();
+				if(!allCapsFlag && !firstWordCaps && !adjacentLetterCaps && !adjacentwordCaps && filteredToken!=null)
+				{
+					token2.setTermText(filteredToken.toLowerCase());
+					tokenStream.addTokenToStream(token2);
+				}
+				else if(filteredToken!=null)
+				{
 					token2.setTermText(filteredToken);
-			tokenStream.addTokenToStream(token2);
-
+					tokenStream.addTokenToStream(token2);
+				}
+			}
 		}
 		catch(Exception e)
 		{

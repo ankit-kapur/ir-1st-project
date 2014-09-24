@@ -102,13 +102,15 @@ public class AccentFilter extends TokenFilter {
 		try{
 			String finalString=null;
 			String filterString=null;
-			
-				tStream.next();
-				accentFlag=false;
-				String mapKey=null;
-				int count=0;
-				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
+
+			tStream.next();
+			accentFlag=false;
+			String mapKey=null;
+			int count=0;
+			Token tokens=tStream.getCurrent();
+			String token=tokens.getTermText();
+			if(token!=null)
+			{
 				String[] filter=token.split("");
 				String value=null;
 				for(String s:filter)
@@ -135,12 +137,16 @@ public class AccentFilter extends TokenFilter {
 				}
 				Token token2 = new Token();
 				if(accentFlag && finalString!=null)
+				{
 					token2.setTermText(finalString);
-				else
-					if(token!=null)
+					tokenStream.addTokenToStream(token2);
+				}
+				else if(token!=null)
+				{
 					token2.setTermText(token);
-				tokenStream.addTokenToStream(token2);
-			
+					tokenStream.addTokenToStream(token2);
+				}
+			}	
 		}
 		catch(Exception e)
 		{

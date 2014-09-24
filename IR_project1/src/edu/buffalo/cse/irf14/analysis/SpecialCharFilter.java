@@ -21,10 +21,12 @@ public class SpecialCharFilter extends TokenFilter {
 			boolean matcherFlag;
 			int digitCount=0;
 			String filteredToken=null;
-				matcherFlag=false;
-				tStream.next();
-				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
+			matcherFlag=false;
+			tStream.next();
+			Token tokens=tStream.getCurrent();
+			String token=tokens.getTermText();
+			if(token!=null)
+			{
 				Pattern pattern = Pattern.compile("[^a-zA-Z]");
 				Matcher matcher=pattern.matcher(token);
 				if(matcher.find())
@@ -46,12 +48,16 @@ public class SpecialCharFilter extends TokenFilter {
 				}
 				Token token2 = new Token();
 				if(matcherFlag && filteredToken!=null)
+				{
 					token2.setTermText(filteredToken);
-				else
-					if(token!=null)
+					tokenStream.addTokenToStream(token2);
+				}
+				else if(token!=null)
+				{
 					token2.setTermText(token);
-				tokenStream.addTokenToStream(token2);
-			
+					tokenStream.addTokenToStream(token2);
+				}
+			}
 		}
 		catch (Exception e)
 		{

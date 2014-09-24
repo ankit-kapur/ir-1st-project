@@ -35,12 +35,14 @@ public class SymbolFilter extends TokenFilter{
 		int digitCount=0,alphacount=0;
 		boolean apostropheFlag=false,digitFlag=false,alphaFlag=false,hardFlag=false;
 		try{
-				tStream.next();
-				apostropheFlag=false;
-				alphaFlag=false;
-				digitFlag=false;
-				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
+			tStream.next();
+			apostropheFlag=false;
+			alphaFlag=false;
+			digitFlag=false;
+			Token tokens=tStream.getCurrent();
+			String token=tokens.getTermText();
+			if(token!=null)
+			{
 				if(token.contains("'s"))
 				{
 					filteredToken=token.replaceAll("'s","");
@@ -110,22 +112,28 @@ public class SymbolFilter extends TokenFilter{
 				{
 					Token token2 = new Token();
 					if(filteredToken!=null)
-					token2.setTermText(filteredToken);
-					tokenStream.addTokenToStream(token2);
+					{
+						token2.setTermText(filteredToken);
+						tokenStream.addTokenToStream(token2);
+					}
 				}
 				if(hardFlag)
 				{
 					Token token2 = new Token();
 					Token token3 = new Token();
 					if(hardString1!=null)
-					token2.setTermText(hardString1);
+					{
+						token2.setTermText(hardString1);
+						tokenStream.addTokenToStream(token2);
+					}
 					if(hardString2!=null)
-					token3.setTermText(hardString2);
-					tokenStream.addTokenToStream(token2);
-					tokenStream.addTokenToStream(token3);
+					{
+						token3.setTermText(hardString2);
+						tokenStream.addTokenToStream(token3);
+					}
 				}
 
-			
+			}
 		}
 		catch(Exception e)
 		{
