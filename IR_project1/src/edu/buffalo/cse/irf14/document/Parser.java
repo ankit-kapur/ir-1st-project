@@ -133,7 +133,7 @@ public class Parser {
 				contentCount++;
 			}
 
-			if (fileId.equals("0007781") || fileId.equals("0004709")) {
+			if (fileId.equals("") || fileId.equals("")) {
 				System.out.println("\nFile ID: " + fileId);
 				System.out.println("Category: " + category);
 				System.out.println("Title: " + title);

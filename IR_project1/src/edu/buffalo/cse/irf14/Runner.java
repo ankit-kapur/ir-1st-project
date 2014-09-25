@@ -9,6 +9,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import edu.buffalo.cse.irf14.document.Document;
 import edu.buffalo.cse.irf14.document.Parser;
@@ -80,6 +83,9 @@ public class Runner {
 					}
 				}
 			}
+			
+			
+			
 			System.out.println("\n\n" + fileCount + " files parsed in this directory.");
 			System.out.println("Errors: " + Parser.errorCount);
 

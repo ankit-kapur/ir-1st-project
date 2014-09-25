@@ -14,4 +14,7 @@ public class IndexerException extends Exception {
 	 */
 	private static final long serialVersionUID = -3012675871474097239L;
 
+	protected IndexerException(String message) {
+		super(message);
+	}
 }

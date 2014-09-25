@@ -37,7 +37,7 @@ public class Token {
 	 * 
 	 * @return the underlying termText
 	 */
-	protected String getTermText() {
+	public String getTermText() {
 		return termText;
 	}
 
