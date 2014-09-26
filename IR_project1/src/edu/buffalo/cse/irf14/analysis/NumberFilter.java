@@ -27,9 +27,15 @@ public class NumberFilter extends TokenFilter{
 			String token=tokens.getTermText();
 			if(token!=null)
 			{
-				Pattern pattern = Pattern.compile("[a-zA-Z]");
+				Pattern pattern = Pattern.compile("[a-zA-Z-]");
 				Matcher matcher=pattern.matcher(token);
-				if(!matcher.find())
+				Pattern pattern1 = Pattern.compile("[0-9]{8}");
+				Matcher matcher1=pattern1.matcher(token);
+				Pattern pattern2 = Pattern.compile("[0-9]{8}-[0-9]{8}");
+				Matcher matcher2=pattern2.matcher(token);
+				Pattern pattern3 = Pattern.compile("[0-9]{2}:[0-9]{2}:[0-9]{2}");
+				Matcher matcher3=pattern3.matcher(token);
+				if(!matcher.find() && !matcher1.find() && !matcher2.find() && !matcher3.find())
 				{
 					matcherFlag=true;
 					StringBuilder sb = new StringBuilder();
@@ -43,12 +49,12 @@ public class NumberFilter extends TokenFilter{
 					filteredToken=sb.toString();
 				}
 				Token token2 = new Token();
-				if(matcherFlag && count>0 && filteredToken!=null )
+				if(matcherFlag && count>0 && filteredToken!=null && !filteredToken.equals(""))
 				{
 					token2.setTermText(filteredToken);
 					tokenStream.addTokenToStream(token2);
 				}
-				else if(!matcherFlag &&count==0 && token!=null)
+				else if(!matcherFlag && count==0 && token!=null && !token.equals(""))
 				{
 					token2.setTermText(token);
 					tokenStream.addTokenToStream(token2);
