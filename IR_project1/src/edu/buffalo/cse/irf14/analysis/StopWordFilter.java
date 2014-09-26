@@ -152,7 +152,7 @@ public class StopWordFilter extends TokenFilter{
 				if(!stopWordMap.contains(token))
 				{
 					Token token2 = new Token();
-					if(token!=null)
+					if(token!=null && !token.equals(""))
 					{
 						token2.setTermText(token);
 						tokenStream.addTokenToStream(token2);
