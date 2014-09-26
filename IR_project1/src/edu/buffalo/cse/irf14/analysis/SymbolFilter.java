@@ -121,12 +121,12 @@ public class SymbolFilter extends TokenFilter{
 				{
 					Token token2 = new Token();
 					Token token3 = new Token();
-					if(hardString1!=null)
+					if(hardString1!=null && !hardString1.equals(""))
 					{
 						token2.setTermText(hardString1);
 					tokenStream.addTokenToStream(token2);
 					}
-					if(hardString2!=null)
+					if(hardString2!=null && !hardString2.equals(""))
 					{
 					token3.setTermText(hardString2);
 					tokenStream.addTokenToStream(token3);
