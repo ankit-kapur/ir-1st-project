@@ -1,0 +1,16 @@
+﻿IndexWriter: Writing to termDictionary and docuDictionary
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/Runner.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/Token.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/analyzer/AuthorAnalyzer.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/analyzer/TitleAnalyzer.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/document/Parser.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/IndexWriter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/IndexerException.java
+#
+

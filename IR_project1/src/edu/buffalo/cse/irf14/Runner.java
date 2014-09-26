@@ -38,15 +38,16 @@ public class Runner {
 	public static void main(String[] args) {
 
 		long startTime = new Date().getTime();
-
+		float parserTime = 0.0f, indexWriterTime = 0.0f;
+		
 		// String ipDir = args[0];
 		// String indexDir = args[1];
 		// more? idk!
 
 		// String ipDir =
 		// "C:\\Users\\ankit.kapur\\Desktop\\Study material\\newsindexer-master\\news_training\\training\\ankit_test";
-		String ipDir = System.getProperty("user.dir") + File.separatorChar + "training";
-		String indexDir = System.getProperty("user.dir") + File.separatorChar + "indexdir";
+		String ipDir = System.getProperty("user.dir") + File.separator + "training";
+		String indexDir = System.getProperty("user.dir") + File.separator + "indexdir";
 
 		File ipDirectory = new File(ipDir);
 		String[] catDirectories = ipDirectory.list();
@@ -72,8 +73,13 @@ public class Runner {
 
 				for (String f : files) {
 					try {
+						long startTime2 = new Date().getTime();
 						d = Parser.parse(dir.getAbsolutePath() + File.separator + f);
+						parserTime += (new Date().getTime() - startTime2) / 1000.0;
+
+						startTime2 = new Date().getTime();
 						writer.addDocument(d);
+						indexWriterTime += (new Date().getTime() - startTime2) / 1000.0;
 						fileCount++;
 					} catch (ParserException e) {
 						// TODO
@@ -118,7 +124,9 @@ public class Runner {
 			}
 			/* --------TEST CODE--------- */
 
-			System.out.println("\nTime for execution ==> " + (new Date().getTime() - startTime) / 1000.0 + " seconds");
+			System.out.println("Time for parser ==> " + parserTime);
+			System.out.println("Time for index-writer ==> " + indexWriterTime);
+			System.out.println("\nOverall time for execution ==> " + (new Date().getTime() - startTime) / 1000.0 + " seconds");
 		} catch (IndexerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

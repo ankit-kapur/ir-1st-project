@@ -111,7 +111,6 @@ public class CapitalizationFilter extends TokenFilter {
 					tokenStream.addTokenToStream(token2);
 				}
 			}
-			System.out.println("token-->"+" "+filteredToken);
 		}
 		catch(Exception e)
 		{

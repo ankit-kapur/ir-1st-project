@@ -37,7 +37,7 @@ public class TitleAnalyzer implements Analyzer {
 		filterTypeList.add(TokenFilterType.SYMBOL);
 		filterTypeList.add(TokenFilterType.SPECIALCHARS);
 		filterTypeList.add(TokenFilterType.STEMMER);
-//		filterTypeList.add(TokenFilterType.NUMERIC);
+		filterTypeList.add(TokenFilterType.NUMERIC);
 		filterTypeList.add(TokenFilterType.CAPITALIZATION);
 		filterTypeList.add(TokenFilterType.ACCENT);
 		filterTypeList.add(TokenFilterType.DATE);
