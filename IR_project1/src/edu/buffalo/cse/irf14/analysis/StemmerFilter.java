@@ -23,39 +23,42 @@ public class StemmerFilter extends TokenFilter {
 			String stemmedToken=null;
 			boolean stemFlag=false;
 			String token=null;
-			tStream.next();
-			Token tokens=tStream.getCurrent();
-			token=tokens.getTermText();
-			if(token!=null)
+			if(tStream.hasNext())
 			{
-				char[] s=token.toCharArray();
-				if(Character.isAlphabetic(s[0]))
+				tStream.next();
+				Token tokens=tStream.getCurrent();
+				token=tokens.getTermText();
+				if(token!=null)
 				{
-					for(int i=0;i<s.length;i++)
+					char[] s=token.toCharArray();
+					if(Character.isAlphabetic(s[0]))
 					{
-						if (Character.isLetter(s[i]))
+						for(int i=0;i<s.length;i++)
 						{
-							for(int j=0;j<s.length;j++)
+							if (Character.isLetter(s[i]))
 							{
-								stemFlag=true;
-								for (int c = 0; c < s.length; c++)
-									stemmer.add(s[c]);
-								stemmer.stem();
-								stemmedToken=stemmer.toString();
+								for(int j=0;j<s.length;j++)
+								{
+									stemFlag=true;
+									for (int c = 0; c < s.length; c++)
+										stemmer.add(s[c]);
+									stemmer.stem();
+									stemmedToken=stemmer.toString();
+								}
 							}
 						}
 					}
-				}
-				Token token2 = new Token();
-				if(stemFlag && stemmedToken!=null && !stemmedToken.equals(""))
-				{
-					token2.setTermText(stemmedToken);
-					tokenStream.addTokenToStream(token2);
-				}
-				else if(token!=null && !token.equals(""))
-				{
-					token2.setTermText(token);
-					tokenStream.addTokenToStream(token2);
+					Token token2 = new Token();
+					if(stemFlag && stemmedToken!=null && !stemmedToken.equals(""))
+					{
+						token2.setTermText(stemmedToken);
+						tokenStream.addTokenToStream(token2);
+					}
+					else if(token!=null && !token.equals(""))
+					{
+						token2.setTermText(token);
+						tokenStream.addTokenToStream(token2);
+					}
 				}
 			}
 		}
@@ -92,7 +95,7 @@ public class StemmerFilter extends TokenFilter {
 	@Override
 	public void processThroughFilters() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
 class Stemmer

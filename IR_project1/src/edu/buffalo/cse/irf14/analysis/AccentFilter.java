@@ -102,51 +102,53 @@ public class AccentFilter extends TokenFilter {
 		try{
 			String finalString=null;
 			String filterString=null;
-
-			tStream.next();
-			accentFlag=false;
-			String mapKey=null;
-			int count=0;
-			Token tokens=tStream.getCurrent();
-			String token=tokens.getTermText();
-			if(token!=null)
+			if(tStream.hasNext())
 			{
-				String[] filter=token.split("");
-				String value=null;
-				for(String s:filter)
+				tStream.next();
+				accentFlag=false;
+				String mapKey=null;
+				int count=0;
+				Token tokens=tStream.getCurrent();
+				String token=tokens.getTermText();
+				if(token!=null)
 				{
-					if(accentMap.containsKey(s))
+					String[] filter=token.split("");
+					String value=null;
+					for(String s:filter)
 					{
-						for(String key: accentMap.keySet())
+						if(accentMap.containsKey(s))
 						{
-							value=accentMap.get(s);
-							if(key.equals(s))
+							for(String key: accentMap.keySet())
 							{
-								mapKey=key;
-								accentFlag=true;
-								count++;
-								break;
+								value=accentMap.get(s);
+								if(key.equals(s))
+								{
+									mapKey=key;
+									accentFlag=true;
+									count++;
+									break;
+								}
 							}
+							filterString=mapKey;
+							if(count<2)
+								finalString=token.replace(filterString,value);
+							if(count>=2)
+								finalString=finalString.replace(filterString,value);
 						}
-						filterString=mapKey;
-						if(count<2)
-							finalString=token.replace(filterString,value);
-						if(count>=2)
-							finalString=finalString.replace(filterString,value);
+					}
+					Token token2 = new Token();
+					if(accentFlag && finalString!=null && !finalString.equals(""))
+					{
+						token2.setTermText(finalString);
+						tokenStream.addTokenToStream(token2);
+					}
+					else if(!accentFlag && token!=null && !token.equals(""))
+					{
+						token2.setTermText(token);
+						tokenStream.addTokenToStream(token2);
 					}
 				}
-				Token token2 = new Token();
-				if(accentFlag && finalString!=null && !finalString.equals(""))
-				{
-					token2.setTermText(finalString);
-					tokenStream.addTokenToStream(token2);
-				}
-				else if(!accentFlag && token!=null && !token.equals(""))
-				{
-					token2.setTermText(token);
-					tokenStream.addTokenToStream(token2);
-				}
-			}	
+			}
 		}
 		catch(Exception e)
 		{
@@ -178,7 +180,7 @@ public class AccentFilter extends TokenFilter {
 	@Override
 	public void processThroughFilters() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
