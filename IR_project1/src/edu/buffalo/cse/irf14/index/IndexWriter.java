@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,14 +42,16 @@ public class IndexWriter {
 	public float writeTime, analyzerTime;
 	String indexDirectory;
 
-	public Map<String, Long> termDictionary = new HashMap<String, Long>();
-	public Map<Long, String> documentDictionary = new HashMap<Long, String>();
+	public static Map<String, Long> termDictionary = new HashMap<String, Long>();
+	public static Map<Long, String> documentDictionary = new HashMap<Long, String>();
 	long termIdCounter, docIdCounter;
 
 	/* File readers/writers */
 	BufferedReader termIndexReader = null;
 	BufferedWriter termIndexWriter = null;
+	RandomAccessFile randomAccessFile = null;
 	String termIndexLocation = File.separator + "termIndex.txt";
+	public File termIndexFile;
 
 	/**
 	 * Default constructor
@@ -64,13 +67,14 @@ public class IndexWriter {
 		docIdCounter = 0;
 
 		try {
-			File termIndexFile = new File(indexDirectory + termIndexLocation);
+			termIndexFile = new File(indexDirectory + termIndexLocation);
 			if (termIndexFile.exists()) {
 				termIndexFile.delete();
 			}
 			termIndexFile.createNewFile();
 			termIndexWriter = new BufferedWriter(new FileWriter(termIndexFile, true));
 			termIndexReader = new BufferedReader(new FileReader(termIndexFile));
+			randomAccessFile = new RandomAccessFile(termIndexFile, "rw");
 			// docuDictWriter = new BufferedWriter(new FileWriter(new
 			// File(indexDirectory + docuDictionaryLocation)));
 		} catch (IOException e) {
@@ -171,21 +175,54 @@ public class IndexWriter {
 
 	private void writeToTermIndex(Map<Long, TermMetadataForThisDoc> termsInThisDoc, long documentId) throws IndexerException {
 		try {
-			String line;
+			String fileLine;
 			if (termIndexReader != null) {
-				while ((line = termIndexReader.readLine()) != null) {
-					if (line.contains(" ")) {
-						String firstTerm = line.substring(0, line.indexOf(' '));
-						if (termsInThisDoc.containsKey(firstTerm)) {
+//				while ((line = termIndexReader.readLine()) != null) {
+//					if (line.contains(" ")) {
+//						String firstTerm = line.substring(0, line.indexOf(' '));
+//						if (termsInThisDoc.containsKey(firstTerm)) {
+//							/*
+//							 * Term already exists in the index file. We
+//							 * need to transfer the metadata from the
+//							 * local index to the file
+//							 */
+//							
+//							
+//							/* Remove from the tracker for this doc */
+//							termsInThisDoc.remove(firstTerm);
+//						}
+//					}
+//				}
+
+				long previousLinePos = 0;
+				while ((fileLine = randomAccessFile.readLine()) != null) {
+					/* Process line only if it begins with a digit */ 
+					if (fileLine.matches("^[0-9] .*$")) {
+
+						String termId = fileLine.substring(0, fileLine.indexOf(' '));
+						if (termsInThisDoc.containsKey(termId)) {
 							/*
 							 * Term already exists in the index file. We
 							 * need to transfer the metadata from the
 							 * local index to the file
 							 */
+							String modifiedLine = fileLine + " --> " + documentId + ";" + termsInThisDoc.get(termId).getTermFrequency() + ";" + termsInThisDoc.get(termId).getBoosterScore();
 							
-							termsInThisDoc.remove(firstTerm);
+							randomAccessFile.seek(previousLinePos);
+							String blankString = "";
+							for (int i = 0; i < fileLine.length(); i++)
+								blankString += " ";
+							randomAccessFile.writeBytes(blankString);
+							randomAccessFile.seek(termIndexFile.length());
+							randomAccessFile.writeBytes(modifiedLine);
+							randomAccessFile.seek(previousLinePos + fileLine.length() + 2);
+							
+							/* Remove the term from the tracker */
+							termsInThisDoc.remove(termId);
 						}
+						
 					}
+					previousLinePos = randomAccessFile.getFilePointer();
 				}
 
 				/* Write the remaining terms here from termsInThisDoc, that
