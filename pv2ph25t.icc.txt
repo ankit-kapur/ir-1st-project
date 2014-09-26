@@ -1,0 +1,14 @@
+﻿IndexWriter with dictionaries on memory (Issues with Number filter)
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/Runner.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/CapitalizationFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/analyzer/TitleAnalyzer.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/IndexWriter.java
+#	new file:   vjr4yxm0.2y0.txt
+#
+
