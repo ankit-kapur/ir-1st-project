@@ -47,12 +47,12 @@ public class SpecialCharFilter extends TokenFilter {
 					}
 				}
 				Token token2 = new Token();
-				if(matcherFlag && filteredToken!=null)
+				if(matcherFlag && filteredToken!=null && !filteredToken.equals(""))
 				{
 					token2.setTermText(filteredToken);
 					tokenStream.addTokenToStream(token2);
 				}
-				else if(token!=null)
+				else if(!matcherFlag && token!=null && !token.equals(""))
 				{
 					token2.setTermText(token);
 					tokenStream.addTokenToStream(token2);
