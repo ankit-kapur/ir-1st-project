@@ -10,11 +10,11 @@ import edu.buffalo.cse.irf14.analysis.TokenFilterType;
 import edu.buffalo.cse.irf14.analysis.TokenStream;
 import edu.buffalo.cse.irf14.analysis.TokenizerException;
 
-public class TitleAnalyzer implements Analyzer {
+public class DateAnalyzer implements Analyzer {
 
 	TokenStream tokenStream;
 
-	public TitleAnalyzer(TokenStream stream) {
+	public DateAnalyzer(TokenStream stream) {
 		this.tokenStream = stream;
 	}
 
@@ -34,14 +34,7 @@ public class TitleAnalyzer implements Analyzer {
 		List<TokenFilterType> filterTypeList = new ArrayList<TokenFilterType>();
 
 		/* Order of filters */
-		//filterTypeList.add(TokenFilterType.DATE);
-		filterTypeList.add(TokenFilterType.CAPITALIZATION);
-		filterTypeList.add(TokenFilterType.SPECIALCHARS);
-		filterTypeList.add(TokenFilterType.SYMBOL);
-		filterTypeList.add(TokenFilterType.STEMMER);
-		filterTypeList.add(TokenFilterType.NUMERIC);
-		filterTypeList.add(TokenFilterType.ACCENT);
-		filterTypeList.add(TokenFilterType.STOPWORD);
+		filterTypeList.add(TokenFilterType.DATE);
 		
 		for (TokenFilterType filterType : filterTypeList) {
 			try {

@@ -4,6 +4,8 @@
 package edu.buffalo.cse.irf14.analysis;
 
 import edu.buffalo.cse.irf14.analysis.analyzer.AuthorAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.DateAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.TermAnalyzer;
 import edu.buffalo.cse.irf14.analysis.analyzer.TitleAnalyzer;
 import edu.buffalo.cse.irf14.document.FieldNames;
 
@@ -47,8 +49,12 @@ public class AnalyzerFactory {
 	public Analyzer getAnalyzerForField(FieldNames name, TokenStream stream) {
 		if (name == FieldNames.TITLE)
 			return new TitleAnalyzer(stream);
-		if (name == FieldNames.AUTHOR)
+		else if (name == FieldNames.AUTHOR || name == FieldNames.AUTHORORG)
 			return new AuthorAnalyzer(stream);
+		else if (name == FieldNames.CONTENT || name == FieldNames.PLACE || name == FieldNames.CATEGORY)
+			return new TermAnalyzer(stream);
+		/*else if (name == FieldNames.NEWSDATE)
+			return new DateAnalyzer(stream);*/
 		else 
 			return null;
 	}
