@@ -85,17 +85,19 @@ public class CapitalizationFilter extends TokenFilter {
 						Token tokens1=tStream.getCurrent();
 						token1=tokens1.getTermText();
 						tStream.reduceIndex();
-						char fc1=token1.charAt(0);
-						char fc=token.charAt(0);
-						if(fc1==Character.toUpperCase(fc1) && fc==Character.toUpperCase(fc))
+						if(token1!=null && !token1.equals("")&& token!=null && !token.equals(""))
 						{
-							filteredToken=token+" "+token1;
-							adjacentwordCaps=true;
-							tStream.next();
-						}	
+							char fc1=token1.charAt(0);
+							char fc=token.charAt(0);
+							if(fc1==Character.toUpperCase(fc1) && fc==Character.toUpperCase(fc))
+							{
+								filteredToken=token+" "+token1;
+								adjacentwordCaps=true;
+								tStream.next();
+							}	
 
+						}
 					}
-
 				}
 				Token token2 = new Token();
 				if(!allCapsFlag && !firstWordCaps && !adjacentLetterCaps && !adjacentwordCaps && filteredToken!=null)
@@ -109,6 +111,7 @@ public class CapitalizationFilter extends TokenFilter {
 					tokenStream.addTokenToStream(token2);
 				}
 			}
+			System.out.println("token-->"+" "+filteredToken);
 		}
 		catch(Exception e)
 		{
@@ -140,7 +143,6 @@ public class CapitalizationFilter extends TokenFilter {
 	@Override
 	public void processThroughFilters() {
 		// TODO Auto-generated method stub
-		
 	}
 
 }
