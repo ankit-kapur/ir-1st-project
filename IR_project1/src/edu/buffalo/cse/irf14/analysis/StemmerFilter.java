@@ -33,20 +33,11 @@ public class StemmerFilter extends TokenFilter {
 					char[] s=token.toCharArray();
 					if(Character.isAlphabetic(s[0]))
 					{
-						for(int i=0;i<s.length;i++)
-						{
-							if (Character.isLetter(s[i]))
-							{
-								for(int j=0;j<s.length;j++)
-								{
-									stemFlag=true;
-									for (int c = 0; c < s.length; c++)
-										stemmer.add(s[c]);
-									stemmer.stem();
-									stemmedToken=stemmer.toString();
-								}
-							}
-						}
+						stemFlag=true;
+						for (int c = 0; c < s.length; c++)
+							stemmer.add(s[c]);
+						stemmer.stem();
+						stemmedToken=stemmer.toString();
 					}
 					Token token2 = new Token();
 					if(stemFlag && stemmedToken!=null && !stemmedToken.equals(""))

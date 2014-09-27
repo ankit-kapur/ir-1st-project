@@ -118,22 +118,13 @@ public class AccentFilter extends TokenFilter {
 					{
 						if(accentMap.containsKey(s))
 						{
-							for(String key: accentMap.keySet())
-							{
-								value=accentMap.get(s);
-								if(key.equals(s))
-								{
-									mapKey=key;
-									accentFlag=true;
-									count++;
-									break;
-								}
-							}
-							filterString=mapKey;
+							value=accentMap.get(s);
+							count++;
+							accentFlag=true;
 							if(count<2)
-								finalString=token.replace(filterString,value);
+								finalString=token.replace(s,value);
 							if(count>=2)
-								finalString=finalString.replace(filterString,value);
+								finalString=finalString.replace(s,value);
 						}
 					}
 					Token token2 = new Token();
