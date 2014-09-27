@@ -9,9 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import edu.buffalo.cse.irf14.document.Document;
 import edu.buffalo.cse.irf14.document.Parser;
@@ -44,8 +41,7 @@ public class Runner {
 		// String indexDir = args[1];
 		// more? idk!
 
-		// String ipDir =
-		// "C:\\Users\\ankit.kapur\\Desktop\\Study material\\newsindexer-master\\news_training\\training\\ankit_test";
+//		String ipDir = System.getProperty("user.dir") + File.separator + "training/ankit_test";
 		String ipDir = System.getProperty("user.dir") + File.separator + "training";
 		String indexDir = System.getProperty("user.dir") + File.separator + "indexdir";
 
