@@ -3,12 +3,7 @@
  */
 package edu.buffalo.cse.irf14.index;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -38,20 +33,20 @@ public class IndexWriter {
 	final int AUTHOR_BOOSTER = 2;
 	final int CONTENT_BOOSTER = 1;
 
+	/* File readers/writers */
+	Map<Character, RandomAccessFile> listOfFileRWs = null;
+	String termIndexFileNamePrefix = File.separator + "termIndex_";
+	String indexDirectory;
+
 	long startTime;
 	public float writeTime, analyzerTime;
-	String indexDirectory;
+	long termIdCounter, docIdCounter;
 
 	public static Map<String, Long> termDictionary = new HashMap<String, Long>();
 	public static Map<Long, String> documentDictionary = new HashMap<Long, String>();
-	long termIdCounter, docIdCounter;
-
-	/* File readers/writers */
-	BufferedReader termIndexReader = null;
-	BufferedWriter termIndexWriter = null;
-	RandomAccessFile randomAccessFile = null;
-	String termIndexLocation = File.separator + "termIndex.txt";
-	public File termIndexFile;
+	
+	
+	
 
 	/**
 	 * Default constructor
@@ -62,21 +57,32 @@ public class IndexWriter {
 	public IndexWriter(String indexDir) {
 		// TODO : YOU MUST IMPLEMENT THIS
 		this.indexDirectory = indexDir;
+		listOfFileRWs = new HashMap<Character, RandomAccessFile>();
 
 		termIdCounter = 0;
 		docIdCounter = 0;
 
 		try {
-			termIndexFile = new File(indexDirectory + termIndexLocation);
+			/* Create the files */
+			File termIndexFile;
+			for (char i = 'a'; i <= 'z'; i++) {
+				termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + i + ".txt");
+				if (termIndexFile.exists()) {
+					termIndexFile.delete();
+				}
+				RandomAccessFile randomAccessFile = new RandomAccessFile(termIndexFile, "rw");
+				listOfFileRWs.put(i, randomAccessFile);
+			}
+
+			/* Create the last file for miscellaneous characters */
+			termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + "_" + ".txt");
 			if (termIndexFile.exists()) {
 				termIndexFile.delete();
 			}
 			termIndexFile.createNewFile();
-			termIndexWriter = new BufferedWriter(new FileWriter(termIndexFile, true));
-			termIndexReader = new BufferedReader(new FileReader(termIndexFile));
-			randomAccessFile = new RandomAccessFile(termIndexFile, "rw");
-			// docuDictWriter = new BufferedWriter(new FileWriter(new
-			// File(indexDirectory + docuDictionaryLocation)));
+			RandomAccessFile randomAccessFile = new RandomAccessFile(termIndexFile, "rw");
+			listOfFileRWs.put('_', randomAccessFile);
+
 		} catch (IOException e) {
 			System.err.println("IndexerException occured while writing to indexer files");
 			e.printStackTrace();
@@ -111,6 +117,7 @@ public class IndexWriter {
 			List<FieldNames> fieldNameList = new ArrayList<FieldNames>();
 			fieldNameList.add(FieldNames.TITLE);
 			fieldNameList.add(FieldNames.AUTHOR);
+			fieldNameList.add(FieldNames.CONTENT);
 
 			Map<Long, TermMetadataForThisDoc> termsInThisDocument = new HashMap<Long, TermMetadataForThisDoc>();
 
@@ -153,7 +160,7 @@ public class IndexWriter {
 								termMetadataForThisDoc.setTermFrequency(termMetadataForThisDoc.getTermFrequency() + 1);
 								termMetadataForThisDoc.setBoosterScore(termMetadataForThisDoc.getBoosterScore() + boosterScore);
 							} else {
-								termMetadataForThisDoc = new TermMetadataForThisDoc(1, boosterScore);
+								termMetadataForThisDoc = new TermMetadataForThisDoc(1, boosterScore, token.getTermText());
 								termsInThisDocument.put(termId, termMetadataForThisDoc);
 							}
 						}
@@ -170,13 +177,79 @@ public class IndexWriter {
 		} catch (TokenizerException e) {
 			System.out.println("Exception caught");
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IndexerException("IndexerException occured while writing to indexer files");
 		}
 	}
 
-	private void writeToTermIndex(Map<Long, TermMetadataForThisDoc> termsInThisDoc, long documentId) throws IndexerException {
-		try {
-			String fileLine;
-			if (termIndexReader != null) {
+	private void writeToTermIndex(Map<Long, TermMetadataForThisDoc> termsInThisDoc, long documentId) throws IndexerException, IOException {
+		Iterator<Long> keySetIterator = termsInThisDoc.keySet().iterator();
+
+		/* Move through each term in this doc */
+		while (keySetIterator.hasNext()) {
+			Long keyTermId = keySetIterator.next();
+			String keyTerm = termsInThisDoc.get(keyTermId).getTermText();
+			RandomAccessFile fileRW = null;
+
+			if (keyTerm != null && keyTerm.length() > 0) {
+				char firstChar = keyTerm.toLowerCase().charAt(0);
+				if (firstChar >= 'a' && firstChar <= 'z') {
+					fileRW = listOfFileRWs.get(firstChar);
+				} else {
+					fileRW = listOfFileRWs.get('_');
+				}
+
+				boolean found = false;
+				String fileLine = null;
+				long previousLinePos = 0;
+
+				/* Find the keyTerm in the file */
+				while ((fileLine = fileRW.readLine()) != null) {
+					if (fileLine.matches("^(\\d+) .*$")) {
+						String firstTermInLine = fileLine.substring(0, fileLine.indexOf(' '));						
+						if (firstTermInLine.trim().length() > 0 && firstTermInLine.equals(String.valueOf(keyTermId))) {
+							/*
+							 * Term already exists in the index file. We
+							 * need to transfer the metadata from the
+							 * local index to the file
+							 */
+							String modifiedLine = "\n" + fileLine + " --> " + documentId + ";" + termsInThisDoc.get(keyTermId).getTermFrequency() + ";" + termsInThisDoc.get(keyTermId).getBoosterScore() + "\n";
+
+							fileRW.seek(previousLinePos);
+							String blankString = "";
+							for (int i = 0; i < fileLine.length(); i++)
+								blankString += " ";
+							fileRW.writeBytes(blankString);
+							fileRW.seek(fileRW.length());
+							fileRW.writeBytes(modifiedLine);
+//							fileRW.seek(previousLinePos + fileLine.length() + 2);
+
+							fileRW.seek(0);
+							found = true;
+							break;
+						}
+					}
+					previousLinePos = fileRW.getFilePointer();
+				}
+				
+				/* Term wasn't found in the index file. We need to append it */
+				if (!found) {
+					String writerString = keyTermId + " " + documentId + ";" + termsInThisDoc.get(keyTermId).getTermFrequency() + ";" + termsInThisDoc.get(keyTermId).getBoosterScore() + "\n";
+					fileRW.seek(fileRW.length());
+					fileRW.writeBytes(writerString);
+					fileRW.seek(0);
+				}
+			}
+
+		}
+
+	}
+
+//	private void writeToTermIndex2(Map<Long, TermMetadataForThisDoc> termsInThisDoc, long documentId) throws IndexerException {
+//		try {
+//			String fileLine;
+//			if (randomAccessFile != null) {
 //				while ((line = termIndexReader.readLine()) != null) {
 //					if (line.contains(" ")) {
 //						String firstTerm = line.substring(0, line.indexOf(' '));
@@ -186,63 +259,66 @@ public class IndexWriter {
 //							 * need to transfer the metadata from the
 //							 * local index to the file
 //							 */
-//							
-//							
+//
 //							/* Remove from the tracker for this doc */
 //							termsInThisDoc.remove(firstTerm);
 //						}
 //					}
 //				}
 
-				long previousLinePos = 0;
-				while ((fileLine = randomAccessFile.readLine()) != null) {
-					/* Process line only if it begins with a digit */ 
-					if (fileLine.matches("^[0-9] .*$")) {
-
-						String termId = fileLine.substring(0, fileLine.indexOf(' '));
-						if (termsInThisDoc.containsKey(termId)) {
-							/*
-							 * Term already exists in the index file. We
-							 * need to transfer the metadata from the
-							 * local index to the file
-							 */
-							String modifiedLine = fileLine + " --> " + documentId + ";" + termsInThisDoc.get(termId).getTermFrequency() + ";" + termsInThisDoc.get(termId).getBoosterScore();
-							
-							randomAccessFile.seek(previousLinePos);
-							String blankString = "";
-							for (int i = 0; i < fileLine.length(); i++)
-								blankString += " ";
-							randomAccessFile.writeBytes(blankString);
-							randomAccessFile.seek(termIndexFile.length());
-							randomAccessFile.writeBytes(modifiedLine);
-							randomAccessFile.seek(previousLinePos + fileLine.length() + 2);
-							
-							/* Remove the term from the tracker */
-							termsInThisDoc.remove(termId);
-						}
-						
-					}
-					previousLinePos = randomAccessFile.getFilePointer();
-				}
-
-				/* Write the remaining terms here from termsInThisDoc, that
-				 * weren't in the index file */
-				Iterator<Long> termIDIterator = termsInThisDoc.keySet().iterator();
-				while (termIDIterator.hasNext()) {
-					Long termId = termIDIterator.next();
-					String writerString = termId + " " + documentId + ";" + termsInThisDoc.get(termId).getTermFrequency() + ";" + termsInThisDoc.get(termId).getBoosterScore() + "\n";
-					termIndexWriter.write(writerString);
-				}
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			throw new IndexerException("IndexerException occured while writing to indexer files");
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IndexerException("IndexerException occured while writing to indexer files");
-		}
-	}
+//				long previousLinePos = 0;
+//				while ((fileLine = randomAccessFile.readLine()) != null) {
+//					/* Process line only if it begins with a digit */
+//					if (fileLine.matches("^[0-9] .*$")) {
+//
+//						String termId = fileLine.substring(0, fileLine.indexOf(' '));
+//						if (termsInThisDoc.containsKey(termId)) {
+//							/*
+//							 * Term already exists in the index file. We
+//							 * need to transfer the metadata from the
+//							 * local index to the file
+//							 */
+//							String modifiedLine = fileLine + " --> " + documentId + ";" + termsInThisDoc.get(termId).getTermFrequency() + ";" + termsInThisDoc.get(termId).getBoosterScore();
+//
+//							randomAccessFile.seek(previousLinePos);
+//							String blankString = "";
+//							for (int i = 0; i < fileLine.length(); i++)
+//								blankString += " ";
+//							randomAccessFile.writeBytes(blankString);
+//							randomAccessFile.seek(termIndexFile.length());
+//							randomAccessFile.writeBytes(modifiedLine);
+//							randomAccessFile.seek(previousLinePos + fileLine.length() + 2);
+//
+//							/* Remove the term from the tracker */
+//							termsInThisDoc.remove(termId);
+//						}
+//
+//					}
+//					previousLinePos = randomAccessFile.getFilePointer();
+//				}
+//
+//				/*
+//				 * Write the remaining terms here from termsInThisDoc, that
+//				 * weren't in the index file
+//				 */
+//				Iterator<Long> termIDIterator = termsInThisDoc.keySet().iterator();
+//				while (termIDIterator.hasNext()) {
+//					Long termId = termIDIterator.next();
+//					String writerString = termId + " " + documentId + ";" + termsInThisDoc.get(termId).getTermFrequency() + ";" + termsInThisDoc.get(termId).getBoosterScore() + "\n";
+//					termIndexWriter.write(writerString);
+//					randomAccessFile.writeBytes(writerString);
+//				}
+//				randomAccessFile.seek(0);
+//			}
+//
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//			throw new IndexerException("IndexerException occured while writing to indexer files");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new IndexerException("IndexerException occured while writing to indexer files");
+//		}
+//	}
 
 	/**
 	 * Method that indicates that all open resources must be closed and cleaned
@@ -253,30 +329,33 @@ public class IndexWriter {
 	 */
 	public void close() throws IndexerException {
 
+		System.out.println("\ntermDictionary : " + termDictionary);
+		System.out.println("\ndocDictionary: " + documentDictionary);
+		
 		System.out.println("\nTime for filtering ==> " + analyzerTime);
 		System.out.println("Time for writing ==> " + writeTime);
 
-		try {
-			if (termIndexReader != null) {
-				termIndexReader.close();
-			}
-			if (termIndexWriter != null) {
-				termIndexWriter.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IndexerException("IndexerException occured while writing to indexer files");
-		}
+		// try {
+		// if (randomAccessFile != null) {
+		// randomAccessFile.close();
+		// }
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// throw new
+		// IndexerException("IndexerException occured while writing to indexer files");
+		// }
 	}
 
 	class TermMetadataForThisDoc {
 		int termFrequency;
 		int boosterScore;
+		String termText;
 
-		public TermMetadataForThisDoc(int termFrequency, int boosterScore) {
+		public TermMetadataForThisDoc(int termFrequency, int boosterScore, String termText) {
 			super();
 			this.termFrequency = termFrequency;
 			this.boosterScore = boosterScore;
+			this.termText = termText;
 		}
 
 		public TermMetadataForThisDoc() {
@@ -297,6 +376,14 @@ public class IndexWriter {
 
 		public void setBoosterScore(int boosterScore) {
 			this.boosterScore = boosterScore;
+		}
+
+		public String getTermText() {
+			return termText;
+		}
+
+		public void setTermText(String termText) {
+			this.termText = termText;
 		}
 	}
 }
