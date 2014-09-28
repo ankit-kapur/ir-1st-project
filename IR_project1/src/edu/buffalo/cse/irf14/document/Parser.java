@@ -54,10 +54,6 @@ public class Parser {
 				e.printStackTrace();
 			}
 
-			if (fileBody != null) {
-				fileBody = fileBody.replaceAll("[\\n\\r]+", " ");
-			}
-
 			/* File ID */
 			int fileNamePosition = fileName.lastIndexOf("\\") >= 0 ? fileName.lastIndexOf("\\") + 1 : fileName.lastIndexOf("/") + 1;
 			fileId = fileName.substring(fileNamePosition);
@@ -75,6 +71,12 @@ public class Parser {
 				matcher = pattern.matcher(fileBody.substring(lastPointerPosition));
 				if (matcher.find()) {
 					title = matcher.group();
+					
+					/* Remove any new line characters */
+					if (title != null) {
+						title = title.replaceAll("[\\n\\r]+", " ");
+					}
+					
 					titleCount++;
 					lastPointerPosition += matcher.end();
 				}
@@ -94,12 +96,18 @@ public class Parser {
 
 					if (matcher.find()) {
 						author = matcher.group().substring(0, matcher.group().indexOf("<"));
-						if (author.contains(",")) {
-							authorOrg = author.substring(author.indexOf(",") + 1).trim();
-							author = author.substring(0, author.indexOf(","));
+						if (author != null) {
+							/* Remove any new line characters */
+							author = author.replaceAll("[\\n\\r]+", " ");
+							
+							/* Find author orgs */
+							if (author.contains(",")) {
+								authorOrg = author.substring(author.indexOf(",") + 1).trim();
+								author = author.substring(0, author.indexOf(","));
+							}
+							authorCount++;
+							lastPointerPosition += matcher.end();
 						}
-						authorCount++;
-						lastPointerPosition += matcher.end();
 					}
 				}
 			}
@@ -117,13 +125,24 @@ public class Parser {
 					dateStartPosition = matcher.start() + lastPointerPosition;
 					dateEndPosition = matcher.end() + lastPointerPosition;
 					newsDate = fileBody.substring(dateStartPosition, dateEndPosition);
+					
+					/* Remove any new line characters */
+					if (newsDate != null) {
+						newsDate = newsDate.replaceAll("[\\n\\r]+", " ");
+					}
+					
 					dateCount++;
 
 					/* Place */
 					if (fileBody.substring(lastPointerPosition, dateStartPosition).lastIndexOf(",") >= 0) {
 						int placeEndPosition = fileBody.substring(lastPointerPosition, dateStartPosition).lastIndexOf(",") + lastPointerPosition;
 						place = fileBody.substring(lastPointerPosition, placeEndPosition);
-						// tempMap.put(category + "-" + fileId, place);
+
+						/* Remove any new line characters */
+						if (place != null) {
+							place = place.replaceAll("[\\n\\r]+", " ");
+						}
+						
 						placeCount++;
 					}
 					lastPointerPosition = dateEndPosition;
@@ -136,6 +155,12 @@ public class Parser {
 					content = fileBody.substring(lastPointerPosition).trim();
 					content = (content.charAt(0) == '-') ? content.substring(1).trim() : content;
 				}
+				
+				/* Remove any new line characters */
+				if (content != null) {
+					content = content.replaceAll("[\\n\\r]+", " ");
+				}
+				
 				contentCount++;
 			}
 
