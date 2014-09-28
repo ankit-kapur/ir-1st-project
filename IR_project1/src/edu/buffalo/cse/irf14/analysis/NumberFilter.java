@@ -26,40 +26,44 @@ public class NumberFilter extends TokenFilter{
 			{
 				tStream.next();
 				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
-				if(token!=null)
+				if(tokens!=null)
 				{
-					Pattern pattern = Pattern.compile("[a-zA-Z-]");
-					Matcher matcher=pattern.matcher(token);
-					Pattern pattern1 = Pattern.compile("[0-9]{8}");
-					Matcher matcher1=pattern1.matcher(token);
-					Pattern pattern2 = Pattern.compile("[0-9]{8}-[0-9]{8}");
-					Matcher matcher2=pattern2.matcher(token);
-					Pattern pattern3 = Pattern.compile("[0-9]{2}:[0-9]{2}:[0-9]{2}");
-					Matcher matcher3=pattern3.matcher(token);
-					if(!matcher.find() && !matcher1.find() && !matcher2.find() && !matcher3.find())
+					String token=tokens.getTermText();
+					if(token!=null)
 					{
-						matcherFlag=true;
-						StringBuilder sb = new StringBuilder();
-						for(char c : token.toCharArray()){
-							if(!Character.isDigit(c) && c!=',' && c!='.'){
-								sb.append(c);
-								count++;
-							}
+						Pattern pattern = Pattern.compile("[a-zA-Z-]");
+						Matcher matcher=pattern.matcher(token);
+						Pattern pattern1 = Pattern.compile("[0-9]{8}");
+						Matcher matcher1=pattern1.matcher(token);
+						Pattern pattern2 = Pattern.compile("[0-9]{8}-[0-9]{8}");
+						Matcher matcher2=pattern2.matcher(token);
+						Pattern pattern3 = Pattern.compile("[0-9]{2}:[0-9]{2}:[0-9]{2}");
+						Matcher matcher3=pattern3.matcher(token);
+						if(!matcher.find() && !matcher1.find() && !matcher2.find() && !matcher3.find())
+						{
+							matcherFlag=true;
+							StringBuilder sb = new StringBuilder();
+							for(char c : token.toCharArray()){
+								if(!Character.isDigit(c) && c!=',' && c!='.'){
+									sb.append(c);
+									count++;
+								}
 
+							}
+							if(sb!=null)
+							filteredToken=sb.toString();
 						}
-						filteredToken=sb.toString();
-					}
-					Token token2 = new Token();
-					if(matcherFlag && count>0 && filteredToken!=null && !filteredToken.equals(""))
-					{
-						token2.setTermText(filteredToken);
-						tokenStream.addTokenToStream(token2);
-					}
-					else if(!matcherFlag && count==0 && token!=null && !token.equals(""))
-					{
-						token2.setTermText(token);
-						tokenStream.addTokenToStream(token2);
+						Token token2 = new Token();
+						if(matcherFlag && count>0 && filteredToken!=null && !filteredToken.equals(""))
+						{
+							token2.setTermText(filteredToken);
+							tokenStream.addTokenToStream(token2);
+						}
+						else if(!matcherFlag && count==0 && token!=null && !token.equals(""))
+						{
+							token2.setTermText(token);
+							tokenStream.addTokenToStream(token2);
+						}
 					}
 				}
 			}

@@ -39,7 +39,7 @@ public class TermAnalyzer implements Analyzer {
 		List<TokenFilterType> filterTypeList = new ArrayList<TokenFilterType>();
 
 		/* Order of filters */
-//		filterTypeList.add(TokenFilterType.DATE);
+		filterTypeList.add(TokenFilterType.DATE);
 		filterTypeList.add(TokenFilterType.CAPITALIZATION);
 		filterTypeList.add(TokenFilterType.SYMBOL);
 		filterTypeList.add(TokenFilterType.SPECIALCHARS);

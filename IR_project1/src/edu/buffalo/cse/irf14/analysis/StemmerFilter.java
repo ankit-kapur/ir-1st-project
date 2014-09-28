@@ -1,7 +1,7 @@
 package edu.buffalo.cse.irf14.analysis;
 
 /**
- * @author Harsh
+ * @credits : tartarus.org/martin/PorterStemmer
  * @parameter {@link TokenStream}
  * @return {@link TokenStream}
  * @description This class contains the logic for stemming  according to test cases.
@@ -27,28 +27,31 @@ public class StemmerFilter extends TokenFilter {
 			{
 				tStream.next();
 				Token tokens=tStream.getCurrent();
-				token=tokens.getTermText();
-				if(token!=null)
+				if(tokens!=null)
 				{
-					char[] s=token.toCharArray();
-					if(Character.isAlphabetic(s[0]))
+					token=tokens.getTermText();
+					if(token!=null)
 					{
-						stemFlag=true;
-						for (int c = 0; c < s.length; c++)
-							stemmer.add(s[c]);
-						stemmer.stem();
-						stemmedToken=stemmer.toString();
-					}
-					Token token2 = new Token();
-					if(stemFlag && stemmedToken!=null && !stemmedToken.equals(""))
-					{
-						token2.setTermText(stemmedToken);
-						tokenStream.addTokenToStream(token2);
-					}
-					else if(token!=null && !token.equals(""))
-					{
-						token2.setTermText(token);
-						tokenStream.addTokenToStream(token2);
+						char[] s=token.toCharArray();
+						if(Character.isAlphabetic(s[0]))
+						{
+							stemFlag=true;
+							for (int c = 0; c < s.length; c++)
+								stemmer.add(s[c]);
+							stemmer.stem();
+							stemmedToken=stemmer.toString();
+						}
+						Token token2 = new Token();
+						if(stemFlag && stemmedToken!=null && !stemmedToken.equals(""))
+						{
+							token2.setTermText(stemmedToken);
+							tokenStream.addTokenToStream(token2);
+						}
+						else if(token!=null && !token.equals(""))
+						{
+							token2.setTermText(token);
+							tokenStream.addTokenToStream(token2);
+						}
 					}
 				}
 			}

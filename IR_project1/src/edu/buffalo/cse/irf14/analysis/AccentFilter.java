@@ -1,4 +1,5 @@
 package edu.buffalo.cse.irf14.analysis;
+import java.util.Date;
 import java.util.HashMap;
 /**
  * @author Harsh
@@ -8,7 +9,7 @@ import java.util.HashMap;
  */
 public class AccentFilter extends TokenFilter {
 
-
+public static long accentTime=0;
 	TokenStream tStream=null;
 	boolean accentFlag=false;
 	public AccentFilter(TokenStream stream) {
@@ -101,42 +102,43 @@ public class AccentFilter extends TokenFilter {
 	{
 		try{
 			String finalString=null;
-			String filterString=null;
 			if(tStream.hasNext())
 			{
 				tStream.next();
 				accentFlag=false;
-				String mapKey=null;
 				int count=0;
 				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
-				if(token!=null)
+				if(tokens!=null)
 				{
-					String[] filter=token.split("");
-					String value=null;
-					for(String s:filter)
+					String token=tokens.getTermText();
+					if(token!=null)
 					{
-						if(accentMap.containsKey(s))
+						String[] filter=token.split("");
+						String value=null;
+						for(String s:filter)
 						{
-							value=accentMap.get(s);
-							count++;
-							accentFlag=true;
-							if(count<2)
-								finalString=token.replace(s,value);
-							if(count>=2)
-								finalString=finalString.replace(s,value);
+							if(accentMap.containsKey(s))
+							{
+								value=accentMap.get(s);
+								count++;
+								accentFlag=true;
+								if(count<2)
+									finalString=token.replace(s,value);
+								if(count>=2)
+									finalString=finalString.replace(s,value);
+							}
 						}
-					}
-					Token token2 = new Token();
-					if(accentFlag && finalString!=null && !finalString.equals(""))
-					{
-						token2.setTermText(finalString);
-						tokenStream.addTokenToStream(token2);
-					}
-					else if(!accentFlag && token!=null && !token.equals(""))
-					{
-						token2.setTermText(token);
-						tokenStream.addTokenToStream(token2);
+						Token token2 = new Token();
+						if(accentFlag && finalString!=null && !finalString.equals(""))
+						{
+							token2.setTermText(finalString);
+							tokenStream.addTokenToStream(token2);
+						}
+						else if(!accentFlag && token!=null && !token.equals(""))
+						{
+							token2.setTermText(token);
+							tokenStream.addTokenToStream(token2);
+						}
 					}
 				}
 			}
@@ -150,12 +152,19 @@ public class AccentFilter extends TokenFilter {
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		try{
+		long startTimeaccent = new Date().getTime();
+		try{ 
 			accentFilter(tStream);
 			if(tStream.hasNext())
 				return true;
 			else
+			{
+				long endTimeAccent = new Date().getTime();
+				accentTime=(endTimeAccent-startTimeaccent)/1000;
 				return false;
+				
+			
+			}
 		}
 		catch(FilterException e)
 		{

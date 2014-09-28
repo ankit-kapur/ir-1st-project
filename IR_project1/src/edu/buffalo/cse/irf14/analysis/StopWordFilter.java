@@ -147,16 +147,19 @@ public class StopWordFilter extends TokenFilter{
 			{
 				tStream.next();
 				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
-				if(token!=null)
+				if(tokens!=null)
 				{
-					if(!stopWordMap.contains(token))
+					String token=tokens.getTermText();
+					if(token!=null)
 					{
-						Token token2 = new Token();
-						if(token!=null && !token.equals(""))
+						if(!stopWordMap.contains(token))
 						{
-							token2.setTermText(token);
-							tokenStream.addTokenToStream(token2);
+							Token token2 = new Token();
+							if(token!=null && !token.equals(""))
+							{
+								token2.setTermText(token);
+								tokenStream.addTokenToStream(token2);
+							}
 						}
 					}
 				}

@@ -26,38 +26,41 @@ public class SpecialCharFilter extends TokenFilter {
 			{
 				tStream.next();
 				Token tokens=tStream.getCurrent();
-				String token=tokens.getTermText();
-				if(token!=null)
+				if(tokens!=null)
 				{
-					Pattern pattern = Pattern.compile("[^a-zA-Z]");
-					Matcher matcher=pattern.matcher(token);
-					if(matcher.find())
+					String token=tokens.getTermText();
+					if(token!=null)
 					{
-						matcherFlag=true;
-						filteredToken=token.replaceAll("[~!@=#$%^&*()_+\\;\',/{}|:\"<>?\\\\/]", "");
-
-						if(filteredToken.contains("-"))
+						Pattern pattern = Pattern.compile("[^a-zA-Z]");
+						Matcher matcher=pattern.matcher(token);
+						if(matcher.find())
 						{
-							for(char c : filteredToken.toCharArray()){
-								if(Character.isDigit(c))
-									digitCount++;
-							}
-							if(digitCount==0)
+							matcherFlag=true;
+							filteredToken=token.replaceAll("[~!@=#$%^&*()_+\\;\',/{}|:\"<>?\\\\/]", "");
+
+							if(filteredToken.contains("-"))
 							{
-								filteredToken=filteredToken.replaceAll("[~!@=#$%^&--*()_+\\;\',/{}|:\"<>?]", "");
+								for(char c : filteredToken.toCharArray()){
+									if(Character.isDigit(c))
+										digitCount++;
+								}
+								if(digitCount==0)
+								{
+									filteredToken=filteredToken.replaceAll("[~!@=#$%^&--*()_+\\;\',/{}|:\"<>?]", "");
+								}
 							}
 						}
-					}
-					Token token2 = new Token();
-					if(matcherFlag && filteredToken!=null && !filteredToken.equals(""))
-					{
-						token2.setTermText(filteredToken);
-						tokenStream.addTokenToStream(token2);
-					}
-					else if(!matcherFlag && token!=null && !token.equals(""))
-					{
-						token2.setTermText(token);
-						tokenStream.addTokenToStream(token2);
+						Token token2 = new Token();
+						if(matcherFlag && filteredToken!=null && !filteredToken.equals(""))
+						{
+							token2.setTermText(filteredToken);
+							tokenStream.addTokenToStream(token2);
+						}
+						else if(!matcherFlag && token!=null && !token.equals(""))
+						{
+							token2.setTermText(token);
+							tokenStream.addTokenToStream(token2);
+						}
 					}
 				}
 			}

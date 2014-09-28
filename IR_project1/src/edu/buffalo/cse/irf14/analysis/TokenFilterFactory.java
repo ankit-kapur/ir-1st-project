@@ -10,9 +10,9 @@ package edu.buffalo.cse.irf14.analysis;
  *
  */
 public class TokenFilterFactory {
-	
+
 	private static TokenFilterFactory tokenFilterFactory;
-	
+
 	/**
 	 * Static method to return an instance of the factory class. Usually
 	 * factory classes are defined as singletons, i.e. only one instance of the
@@ -45,23 +45,33 @@ public class TokenFilterFactory {
 	 */
 	public TokenFilter getFilterByType(TokenFilterType type, TokenStream stream) {
 		// TODO : YOU MUST IMPLEMENT THIS METHOD
-		if (type == TokenFilterType.ACCENT)
-			return new AccentFilter(stream);
-		else if (type == TokenFilterType.NUMERIC)
-			return new NumberFilter(stream);
-		else if (type == TokenFilterType.STOPWORD)
-			return new StopWordFilter(stream);
-		else if (type == TokenFilterType.STEMMER)
-			return new StemmerFilter(stream);
-		else if (type == TokenFilterType.SPECIALCHARS)
-			return new SpecialCharFilter(stream);
-		else if (type == TokenFilterType.CAPITALIZATION)
-			return new CapitalizationFilter(stream); // To be changed
-		else if (type == TokenFilterType.DATE)
-			return new DateFilter(stream);
-		else if (type == TokenFilterType.SYMBOL)
-			return new SymbolFilter(stream);
-		else
-			return null;
+		try{
+
+
+			if (type == TokenFilterType.ACCENT)
+				return new AccentFilter(stream);
+			else if (type == TokenFilterType.NUMERIC)
+				return new NumberFilter(stream);
+			else if (type == TokenFilterType.STOPWORD)
+				return new StopWordFilter(stream);
+			else if (type == TokenFilterType.STEMMER)
+				return new StemmerFilter(stream);
+			else if (type == TokenFilterType.SPECIALCHARS)
+				return new SpecialCharFilter(stream);
+			else if (type == TokenFilterType.CAPITALIZATION)
+				return new CapitalizationFilter(stream); // To be changed
+			else if (type == TokenFilterType.DATE)
+				return new DateFilter(stream);
+			else if (type == TokenFilterType.SYMBOL)
+				return new SymbolFilter(stream);
+			else
+				return null;
+		}
+		catch(Exception e )
+		{
+			e.printStackTrace();
+			System.err.println("Error in TokenFilter Factory");
+		}
+		return null;
 	}
 }

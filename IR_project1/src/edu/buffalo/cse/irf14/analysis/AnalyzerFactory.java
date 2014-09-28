@@ -5,6 +5,7 @@ package edu.buffalo.cse.irf14.analysis;
 
 import edu.buffalo.cse.irf14.analysis.analyzer.AuthorAnalyzer;
 import edu.buffalo.cse.irf14.analysis.analyzer.DateAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.PlaceAnalyzer;
 import edu.buffalo.cse.irf14.analysis.analyzer.TermAnalyzer;
 import edu.buffalo.cse.irf14.analysis.analyzer.TitleAnalyzer;
 import edu.buffalo.cse.irf14.document.FieldNames;
@@ -14,7 +15,7 @@ import edu.buffalo.cse.irf14.document.FieldNames;
  * This factory class is responsible for instantiating "chained" {@link Analyzer} instances
  */
 public class AnalyzerFactory {
-	
+
 	private static AnalyzerFactory factoryInstance;
 	/**
 	 * Static method to return an instance of the factory class.
@@ -34,7 +35,7 @@ public class AnalyzerFactory {
 		}
 		return factoryInstance;
 	}
-	
+
 	/**
 	 * Returns a fully constructed and chained {@link Analyzer} instance
 	 * for a given {@link FieldNames} field
@@ -47,15 +48,26 @@ public class AnalyzerFactory {
 	 * null otherwise
 	 */
 	public Analyzer getAnalyzerForField(FieldNames name, TokenStream stream) {
-		if (name == FieldNames.TITLE)
-			return new TitleAnalyzer(stream);
-		else if (name == FieldNames.AUTHOR || name == FieldNames.AUTHORORG)
-			return new AuthorAnalyzer(stream);
-		else if (name == FieldNames.CONTENT || name == FieldNames.PLACE || name == FieldNames.CATEGORY)
-			return new TermAnalyzer(stream);
-		/*else if (name == FieldNames.NEWSDATE)
-			return new DateAnalyzer(stream);*/
-		else 
-			return null;
+		try
+		{
+			if (name == FieldNames.TITLE)
+				return new TitleAnalyzer(stream);
+			else if (name == FieldNames.AUTHOR || name == FieldNames.AUTHORORG)
+				return new AuthorAnalyzer(stream);
+			else if (name == FieldNames.CONTENT)
+				return new TermAnalyzer(stream);
+			else if (name == FieldNames.NEWSDATE)
+				return new DateAnalyzer(stream);
+			else if(name == FieldNames.PLACE)
+				return new PlaceAnalyzer(stream);
+			else 
+				return null;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.err.println("Error in AnalyzerFactory");
+		}
+		return null;
 	}
 }
