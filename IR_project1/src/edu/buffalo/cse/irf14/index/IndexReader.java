@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import edu.buffalo.cse.irf14.analysis.util.DictionaryMetadata;
 import edu.buffalo.cse.irf14.analysis.util.TermMetadataForThisDoc;
@@ -267,9 +268,10 @@ public class IndexReader {
 			}
 
 			for (Entry<String, DictionaryMetadata> entry : sortedMap.entrySet()) {
-				if (list.size() > k)
-					break;
 				finalList.add(entry.getKey());
+				if (finalList.size() >= k)
+					break;
+				
 			}
 		}
 		return finalList;

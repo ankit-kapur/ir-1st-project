@@ -128,6 +128,12 @@ public class IndexWriter {
 							 */
 							if (termDictionary.containsKey(token.getTermText())) {
 								termId = termDictionary.get(token.getTermText()).getTermId();
+								/*
+								 * Increase overall term frequency in
+								 * term-dictionary
+								 */
+								termDictionary.get(token.getTermText()).setFrequency(termDictionary.get(token.getTermText()).getFrequency() + 1);
+
 							} else {
 								DictionaryMetadata dictionaryMetadata = new DictionaryMetadata(termIdCounter++, 1);
 								termDictionary.put(token.getTermText(), dictionaryMetadata);
@@ -172,13 +178,6 @@ public class IndexWriter {
 								termMetadataForThisDoc.setTermFrequency(termMetadataForThisDoc.getTermFrequency() + 1);
 								termMetadataForThisDoc.setBoosterScore(termMetadataForThisDoc.getBoosterScore() + boosterScore);
 
-								/*
-								 * Increase overall term frequency in
-								 * term-dictionary
-								 */
-								termDictionary.get(token.getTermText()).setFrequency(termDictionary.get(token.getTermText
-
-								()).getFrequency() + 1);
 							} else {
 								termMetadataForThisDoc = new TermMetadataForThisDoc(1, boosterScore, token.getTermText().charAt(0));
 								termIndexForThisDoc.put(docIdCounter, termMetadataForThisDoc);
