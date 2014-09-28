@@ -34,7 +34,7 @@ public class TitleAnalyzer implements Analyzer {
 		List<TokenFilterType> filterTypeList = new ArrayList<TokenFilterType>();
 
 		/* Order of filters */
-		//filterTypeList.add(TokenFilterType.DATE);
+		filterTypeList.add(TokenFilterType.DATE);
 		filterTypeList.add(TokenFilterType.CAPITALIZATION);
 		filterTypeList.add(TokenFilterType.SPECIALCHARS);
 		filterTypeList.add(TokenFilterType.SYMBOL);

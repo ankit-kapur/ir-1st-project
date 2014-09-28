@@ -47,7 +47,7 @@ public class DateFilter extends TokenFilter {
 
 	@Override
 	public TokenStream getStream() {
-		TokenStream modifiedStream = null; 
+		TokenStream modifiedStream = null;
 		try {
 			modifiedStream = processFilterForToken();
 		} catch (FilterException e) {
@@ -83,6 +83,7 @@ public class DateFilter extends TokenFilter {
 			SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy HH:mm:ss");
 			df.setLenient(false);
 			String testDateString = dateString + " " + time;
+			testDateString = testDateString.replaceAll("[\\n\\r\\t]+", " ").replaceAll("Sept(?!(ember))", "Sep");
 			try {
 				df.parse(testDateString);
 				validDate = true;
@@ -93,7 +94,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(testDateString);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date");
+					System.out.println("INVALID date: " + testDateString);
 					continue;
 				}
 			}
@@ -124,6 +125,7 @@ public class DateFilter extends TokenFilter {
 			offset = changedString.length() - tokenStreamString.length();
 			boolean validDate = false;
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
+			dateFound = dateFound.replaceAll("[\\n\\r\\t]+", " ").replaceAll("Sept(?!(ember))", "Sep");
 
 			SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy");
 			df.setLenient(false);
@@ -142,6 +144,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
+					System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -168,6 +171,8 @@ public class DateFilter extends TokenFilter {
 			offset = changedString.length() - tokenStreamString.length();
 			boolean validDate = false;
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
+			dateFound = dateFound.replaceAll("[\\n\\r\\t]+", " ").replaceAll("Sept(?!(ember))", "Sep");
+			;
 
 			String newDateString = null;
 			String testDateString = dateFound;
@@ -186,7 +191,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date");
+					System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -252,6 +257,7 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
+			dateFound = dateFound.replaceAll("[\\n\\r\\t]+", " ").replaceAll("Sept(?!(ember))", "Sep");
 
 			SimpleDateFormat df = new SimpleDateFormat("hh:mm aa");
 			df.setLenient(false);
@@ -269,7 +275,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date");
+					System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -295,6 +301,14 @@ public class DateFilter extends TokenFilter {
 		while (matcher.find()) {
 			offset = changedString.length() - tokenStreamString.length();
 			dateFound = tokenStreamString.substring(matcher.start(), matcher.end());
+			dateFound = dateFound.replaceAll("[\\n\\r\\t]+", " ").replaceAll("Sept(?!(ember))", "Sep");
+			/* Check if day of the month is valid */
+			String dayOfTheMonth = dateFound.substring(dateFound.indexOf(' ') + 1);
+			if (!(dayOfTheMonth != null && !dayOfTheMonth.trim().isEmpty() && Integer.parseInt(dayOfTheMonth) > 0 && Integer.parseInt(dayOfTheMonth) <= 31)) {
+
+				System.out.println("INVALIDDDD date: " + dateFound);
+				continue;
+			}
 
 			Date date = new Date(dateFound + " 1900");
 			Calendar calendar = new GregorianCalendar();
@@ -323,7 +337,10 @@ public class DateFilter extends TokenFilter {
 		try {
 			modifiedTokenStream = new Tokenizer().consume(tokenStreamString);
 
-			/* For the special case (1) where 20041226 00:58:53 is required to be a single token */
+			/*
+			 * For the special case (1) where 20041226 00:58:53 is required
+			 * to be a single token
+			 */
 			if (twoTokensCaseOccured) {
 				while (modifiedTokenStream.hasNext()) {
 					Token currentToken = modifiedTokenStream.next();
@@ -384,6 +401,6 @@ public class DateFilter extends TokenFilter {
 	@Override
 	public void processThroughFilters() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
