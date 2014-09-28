@@ -1,0 +1,22 @@
+﻿IndexReader failing for EOFException. IndexWriter working. 
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/Runner.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/DateFilter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/analysis/analyzer/TermAnalyzer.java
+#	new file:   IR_project1/src/edu/buffalo/cse/irf14/analysis/util/DictionaryMetadata.java
+#	new file:   IR_project1/src/edu/buffalo/cse/irf14/analysis/util/TermMetadataForThisDoc.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/document/Parser.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/IndexReader.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/IndexWriter.java
+#	modified:   IR_project1/src/edu/buffalo/cse/irf14/index/test/IndexerTest.java
+#	new file:   dk3zoxmo.kxl.txt
+#
+# Untracked files:
+#	mmwophcz.kqy.txt
+#
+

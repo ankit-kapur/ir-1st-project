@@ -37,14 +37,14 @@ public class IndexWriter {
 	public static String termIndexFileNamePrefix = File.separator + "term_index_";
 	public static String categoryIndexFileNamePrefix = File.separator + "category_index_";
 	public static String authorIndexFileNamePrefix = File.separator + "author_index_";
-	public static String placeIndexFileNamePart = File.separator + "place_index_";	
-	
+	public static String placeIndexFileNamePart = File.separator + "place_index_";
+
 	public static String termDictFileName = File.separator + "dictionaryOfTerms.txt";
 	public static String docuDictFileName = File.separator + "dictionaryOfDocs.txt";
 	String indexDirectory;
 
 	/* File readers/writers */
-	Map<Character, ObjectOutputStream> listOfWriters = null;
+//	Map<Character, ObjectOutputStream> listOfWriters = null;
 	ObjectOutputStream termDictionaryWriter = null;
 	ObjectOutputStream docuDictionaryWriter = null;
 
@@ -66,37 +66,12 @@ public class IndexWriter {
 	 */
 	public IndexWriter(String indexDir) {
 		this.indexDirectory = indexDir;
-		listOfWriters = new HashMap<Character, ObjectOutputStream>();
+//		listOfWriters = new HashMap<Character, ObjectOutputStream>();
 		termIndex = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
 
 		termIdCounter = 0;
 		docIdCounter = 0;
 
-		try {
-			/* For indexes: Create the files */
-			File termIndexFile;
-			for (char i = 'a'; i <= 'z'; i++) {
-				termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + i + ".txt");
-				if (termIndexFile.exists()) {
-					termIndexFile.delete();
-				}
-				ObjectOutputStream bufferedWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
-				listOfWriters.put(i, bufferedWriter);
-			}
-
-			/* Create the last file for miscellaneous characters */
-			termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + "_" + ".txt");
-			if (termIndexFile.exists()) {
-				termIndexFile.delete();
-			}
-			termIndexFile.createNewFile();
-			ObjectOutputStream bufferedWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
-			listOfWriters.put('_', bufferedWriter);
-
-		} catch (IOException e) {
-			System.err.println("IndexerException occured while writing to indexer files");
-			e.printStackTrace();
-		}
 		writeTime = 0.0f;
 	}
 
@@ -115,7 +90,7 @@ public class IndexWriter {
 		AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 
 		try {
-			String category = (doc.getField(FieldNames.CATEGORY) != null && doc.getField(FieldNames.CATEGORY).length>0) ? doc.getField(FieldNames.CATEGORY)[0] : "";
+			String category = (doc.getField(FieldNames.CATEGORY) != null && doc.getField(FieldNames.CATEGORY).length > 0) ? doc.getField(FieldNames.CATEGORY)[0] : "";
 			String documentId = category + doc.getField(FieldNames.FILEID)[0];
 			documentDictionary.put(docIdCounter, documentId);
 
@@ -255,18 +230,28 @@ public class IndexWriter {
 		}
 	}
 
-	private void writeToTermIndexWithBuff() throws IOException {
-		if (termIndex != null) {
-			ObjectOutputStream writer = null;
-			Iterator<Character> alphabets = termIndex.keySet().iterator();
-			while (alphabets.hasNext()) {
-				char character = alphabets.next();
-				writer = listOfWriters.get(character);
-
-				Map<Long, Map<Long, TermMetadataForThisDoc>> termMap = termIndex.get(character);
-				writer.writeObject(termMap);
+	private void writeTermIndex() throws IOException {
+		/* For indexes: Create the files */
+		File termIndexFile;
+		for (char i = 'a'; i <= 'z'; i++) {
+			termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + i + ".txt");
+			if (termIndexFile.exists()) {
+				termIndexFile.delete();
 			}
+			ObjectOutputStream writer = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
+			writer.writeObject(termIndex.get(i));
+			writer.close();
 		}
+
+		/* Create the last file for miscellaneous characters */
+		termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + "_" + ".txt");
+		if (termIndexFile.exists()) {
+			termIndexFile.delete();
+		}
+		termIndexFile.createNewFile();
+		ObjectOutputStream writer = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
+		writer.writeObject(termIndex.get('_'));
+		writer.close();
 	}
 
 	/**
@@ -283,7 +268,7 @@ public class IndexWriter {
 			startTime = new Date().getTime();
 			writeTermDictionary();
 			writeDocumentDictionary();
-			writeToTermIndexWithBuff();
+			writeTermIndex();
 			writeTime += (new Date().getTime() - startTime) / 1000.0;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -294,17 +279,17 @@ public class IndexWriter {
 		System.out.println("Time for writing ==> " + writeTime);
 
 		try {
-			for (char c = 'a'; c <= 'z'; c++) {
-				if (listOfWriters.get(c) != null) {
-					ObjectOutputStream stream = listOfWriters.get(c);
-					stream.flush();
-					stream.close();
-				}
-			}
-			if (listOfWriters.get('_') != null) {
-				listOfWriters.get('_').flush();
-				listOfWriters.get('_').close();
-			}
+//			for (char c = 'a'; c <= 'z'; c++) {
+//				if (listOfWriters.get(c) != null) {
+//					ObjectOutputStream stream = listOfWriters.get(c);
+//					stream.flush();
+//					stream.close();
+//				}
+//			}
+//			if (listOfWriters.get('_') != null) {
+//				listOfWriters.get('_').flush();
+//				listOfWriters.get('_').close();
+//			}
 
 			if (termDictionaryWriter != null) {
 				termDictionaryWriter.close();
