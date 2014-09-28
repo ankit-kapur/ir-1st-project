@@ -3,82 +3,187 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import edu.buffalo.cse.irf14.index.IndexWriter.DictionaryMetadata;
+import edu.buffalo.cse.irf14.index.IndexWriter.TermMetadataForThisDoc;
 
 /**
- * @author nikhillo
- * Class that emulates reading data back from a written index
+ * @author nikhillo Class that emulates reading data back from a written index
  */
 public class IndexReader {
+	//public static Map<String, Integer> IndexWriter = new HashMap<String, Integer>();
+	public final String className = this.getClass().getName();
 	/**
 	 * Default constructor
-	 * @param indexDir : The root directory from which the index is to be read.
-	 * This will be exactly the same directory as passed on IndexWriter. In case 
-	 * you make subdirectories etc., you will have to handle it accordingly.
-	 * @param type The {@link IndexType} to read from
+	 * 
+	 * @param indexDir
+	 *             : The root directory from which the index is to be read.
+	 *             This will be exactly the same directory as passed on
+	 *             IndexWriter. In case you make subdirectories etc., you will
+	 *             have to handle it accordingly.
+	 * @param type
+	 *             The {@link IndexType} to read from
 	 */
+	String indexDirectory = null;
+	IndexType indexType = null;
+
 	public IndexReader(String indexDir, IndexType type) {
-		//TODO
+		this.indexDirectory = indexDir;
+		this.indexType = type;
 	}
-	
+
 	/**
-	 * Get total number of terms from the "key" dictionary associated with this 
+	 * Get total number of terms from the "key" dictionary associated with this
 	 * index. A postings list is always created against the "key" dictionary
+	 * 
 	 * @return The total number of terms
 	 */
 	public int getTotalKeyTerms() {
-		//TODO : YOU MUST IMPLEMENT THIS
-		return -1;
+		int totalKeyTerms = 0;
+		String gMethodName = "getTotalKeyTerms";
+		try {
+
+			if (indexType != null) {
+				for (String s : IndexWriter.termDictionary.keySet()) {
+					totalKeyTerms++;
+				}
+
+			}
+		} catch (Exception e) {
+			System.err.println("Error in" + className + gMethodName);
+			e.printStackTrace();
+		}
+		return totalKeyTerms;
+		// TODO : YOU MUST IMPLEMENT THIS
 	}
-	
+
 	/**
-	 * Get total number of terms from the "value" dictionary associated with this 
-	 * index. A postings list is always created with the "value" dictionary
+	 * Get total number of terms from the "value" dictionary associated with
+	 * this index. A postings list is always created with the "value"
+	 * dictionary
+	 * 
 	 * @return The total number of terms
 	 */
 	public int getTotalValueTerms() {
-		//TODO: YOU MUST IMPLEMENT THIS
-		return -1;
+		int totalvalueTerms = 0;
+		String gMethodName = "getTotalValueTerms";
+		try {
+
+			if (indexType != null) {
+				for (int i = 0; i < IndexWriter.documentDictionary.keySet().size(); i++) {
+					totalvalueTerms++;
+				}
+
+			}
+		} catch (Exception e) {
+			System.err.println("Error in" + className + gMethodName);
+			e.printStackTrace();
+		}
+		return totalvalueTerms;
 	}
-	
+
 	/**
-	 * Method to get the postings for a given term. You can assume that
-	 * the raw string that is used to query would be passed through the same
-	 * Analyzer as the original field would have been.
-	 * @param term : The "analyzed" term to get postings for
-	 * @return A Map containing the corresponding fileid as the key and the 
-	 * number of occurrences as values if the given term was found, null otherwise.
+	 * Method to get the postings for a given term. You can assume that the raw
+	 * string that is used to query would be passed through the same Analyzer
+	 * as the original field would have been.
+	 * 
+	 * @param term
+	 *             : The "analyzed" term to get postings for
+	 * @return A Map containing the corresponding fileid as the key and the
+	 *         number of occurrences as values if the given term was found,
+	 *         null otherwise.
 	 */
 	public Map<String, Integer> getPostings(String term) {
-		//TODO:YOU MUST IMPLEMENT THIS
-		return null;
+		// TODO:YOU MUST IMPLEMENT THIS
+		final Map<String, Integer> postingsMap = new HashMap<String, Integer>();
+		long termId = -1, docId = -1;
+		Map<Long, TermMetadataForThisDoc> documentIdToObjectMap = null;
+		if (term == null) {
+			return null;
+		} else {
+			termId = IndexWriter.termDictionary.get(term).getTermId();
+			char firstChar = term.toLowerCase().charAt(0);
+			documentIdToObjectMap = IndexWriter.termIndex.get(firstChar).get(termId);
+
+			Iterator<Long> docIterator = documentIdToObjectMap.keySet().iterator(); 
+			while (docIterator.hasNext()) {
+				docId = docIterator.next();
+				TermMetadataForThisDoc metadataForDocTerm = documentIdToObjectMap.get(docId);
+				postingsMap.put(IndexWriter.documentDictionary.get(docId), metadataForDocTerm.getTermFrequency());
+			}
+		}
+		return postingsMap;
 	}
-	
+
 	/**
-	 * Method to get the top k terms from the index in terms of the total number
-	 * of occurrences.
-	 * @param k : The number of terms to fetch
-	 * @return : An ordered list of results. Must be <=k fr valid k values
-	 * null for invalid k values
+	 * Method to get the top k terms from the index in terms of the total
+	 * number of occurrences.
+	 * 
+	 * @param k
+	 *             : The number of terms to fetch
+	 * @return : An ordered list of results. Must be <=k fr valid k values null
+	 *         for invalid k values
 	 */
 	public List<String> getTopK(int k) {
-		//TODO YOU MUST IMPLEMENT THIS
-		return null;
+		// TODO YOU MUST IMPLEMENT THIS
+		List<String> finalList = new ArrayList<String>();
+		if (k == -1 || k == 0) {
+
+			return null;
+		}
+		else
+		{
+			List<Map.Entry<String, DictionaryMetadata>> list = 
+					new ArrayList<Map.Entry<String, DictionaryMetadata>>(IndexWriter.termDictionary.entrySet());
+			Collections.sort(list,new Comparator<Map.Entry<String, DictionaryMetadata>>(){
+				public int compare(Map.Entry<String, DictionaryMetadata> o1,
+						Map.Entry<String, DictionaryMetadata> o2) {
+					return o2.getValue().getFrequency() > o1.getValue().getFrequency() ? 1 : (o2.getValue().getFrequency() < o1.getValue().getFrequency() ? -1 : 0);
+				}
+			});
+
+			// Convert sorted map back to a Map
+			Map<String, DictionaryMetadata> sortedMap = new LinkedHashMap<String, DictionaryMetadata>();
+			java.util.Iterator<Entry<String, DictionaryMetadata>> iterator=list.iterator();
+
+			while(iterator.hasNext()) {
+				Map.Entry<String, DictionaryMetadata> entry = iterator.next();
+				sortedMap.put(entry.getKey(), entry.getValue());
+			}
+			
+			for (Entry<String, DictionaryMetadata> entry : sortedMap.entrySet()) {
+				if(list.size()>k)
+					break;
+				finalList.add(entry.getKey());
+			}
+		}
+		return finalList;
+
 	}
-	
+
 	/**
 	 * Method to implement a simple boolean AND query on the given index
-	 * @param terms The ordered set of terms to AND, similar to getPostings()
-	 * the terms would be passed through the necessary Analyzer.
-	 * @return A Map (if all terms are found) containing FileId as the key 
-	 * and number of occurrences as the value, the number of occurrences 
-	 * would be the sum of occurrences for each participating term. return null
-	 * if the given term list returns no results
-	 * BONUS ONLY
+	 * 
+	 * @param terms
+	 *             The ordered set of terms to AND, similar to getPostings()
+	 *             the terms would be passed through the necessary Analyzer.
+	 * @return A Map (if all terms are found) containing FileId as the key and
+	 *         number of occurrences as the value, the number of occurrences
+	 *         would be the sum of occurrences for each participating term.
+	 *         return null if the given term list returns no results BONUS ONLY
 	 */
-	public Map<String, Integer> query(String...terms) {
-		//TODO : BONUS ONLY
+
+	public Map<String, Integer> query(String... terms) {
+		// TODO : BONUS ONLY
 		return null;
 	}
 }

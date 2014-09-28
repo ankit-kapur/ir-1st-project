@@ -19,7 +19,7 @@ public class CapitalizationFilter extends TokenFilter {
 			adjacentLetterCaps=false;
 			firstWordCaps=false;
 			adjacentwordCaps=false;
-			int count=0,count1=0;
+			int count1=0;
 			String token1=null;
 			if(tStream.hasNext())
 			{
@@ -29,20 +29,16 @@ public class CapitalizationFilter extends TokenFilter {
 				if(token!=null)
 				{
 					//Logic for checking all caps letters
-					for(char c : token.toCharArray()){
-						if(c==Character.toUpperCase(c)){
-							count++;
-						}
-					}
-					if(count!=token.length())
-					{
-						allCapsFlag=false;
-					}
-					if(count==token.length())
+					if(token.equals(token.toUpperCase()))
 					{
 						filteredToken=token;
 						allCapsFlag=true;
 					}
+					else
+					{
+						allCapsFlag=false;
+					}
+					
 					//Logic for checking adjacent caps letters in a single word
 					if(!allCapsFlag)
 					{
