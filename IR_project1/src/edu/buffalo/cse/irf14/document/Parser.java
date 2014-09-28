@@ -54,6 +54,10 @@ public class Parser {
 				e.printStackTrace();
 			}
 
+			if (fileBody != null) {
+				fileBody = fileBody.replaceAll("[\\n\\r]+", " ");
+			}
+
 			/* File ID */
 			int fileNamePosition = fileName.lastIndexOf("\\") >= 0 ? fileName.lastIndexOf("\\") + 1 : fileName.lastIndexOf("/") + 1;
 			fileId = fileName.substring(fileNamePosition);
@@ -128,8 +132,10 @@ public class Parser {
 
 			/* Content */
 			if (fileBody.substring(lastPointerPosition) != null) {
+				if (fileBody.substring(lastPointerPosition).trim() != null && !fileBody.substring(lastPointerPosition).isEmpty()) {
 				content = fileBody.substring(lastPointerPosition).trim();
 				content = (content.charAt(0) == '-') ? content.substring(1).trim() : content;
+				}
 				contentCount++;
 			}
 

@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class IndexerTest {
 				"increase in home sales in july", "july new home sales rise"};
 		int len = strs.length;
 		Document d;
-		String dir = System.getProperty("INDEX.DIR");
+		String dir = System.getProperty("user.dir") + File.separator + "indexdir";
 		IndexWriter writer = new IndexWriter(dir); //set this beforehand
 		for (int i = 0; i < len; i++) {
 			d = new Document();
@@ -58,7 +59,7 @@ public class IndexerTest {
 
 	@Before
 	public final void before() {
-		reader = new IndexReader(System.getProperty("INDEX.DIR"), IndexType.TERM);
+		reader = new IndexReader(System.getProperty("user.dir") + File.separator + "indexdir", IndexType.TERM);
 	}
 	
 	/**
@@ -116,7 +117,7 @@ public class IndexerTest {
 			while (analyzer.increment()) {
 				
 			}
-			
+			stream = analyzer.getStream();
 			stream.reset();
 			return stream.next().toString();
 		} catch (TokenizerException e) {

@@ -20,8 +20,13 @@ public class TermAnalyzer implements Analyzer {
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		// No need to implement
-		return false;
+		if (tokenStream.hasNext()) {
+			tokenStream.next();
+			return true;
+		} else {
+			processThroughFilters();
+			return false;
+		}
 	}
 
 	@Override
@@ -34,7 +39,7 @@ public class TermAnalyzer implements Analyzer {
 		List<TokenFilterType> filterTypeList = new ArrayList<TokenFilterType>();
 
 		/* Order of filters */
-		filterTypeList.add(TokenFilterType.DATE);
+//		filterTypeList.add(TokenFilterType.DATE);
 		filterTypeList.add(TokenFilterType.CAPITALIZATION);
 		filterTypeList.add(TokenFilterType.SYMBOL);
 		filterTypeList.add(TokenFilterType.SPECIALCHARS);

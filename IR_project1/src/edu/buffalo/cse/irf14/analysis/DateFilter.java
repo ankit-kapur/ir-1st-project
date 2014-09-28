@@ -94,7 +94,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(testDateString);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date: " + testDateString);
+//					System.out.println("INVALID date: " + testDateString);
 					continue;
 				}
 			}
@@ -144,7 +144,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date: " + dateFound);
+//					System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -191,7 +191,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date: " + dateFound);
+//					System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -275,7 +275,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-					System.out.println("INVALID date: " + dateFound);
+//					System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -306,7 +306,7 @@ public class DateFilter extends TokenFilter {
 			String dayOfTheMonth = dateFound.substring(dateFound.indexOf(' ') + 1);
 			if (!(dayOfTheMonth != null && !dayOfTheMonth.trim().isEmpty() && Integer.parseInt(dayOfTheMonth) > 0 && Integer.parseInt(dayOfTheMonth) <= 31)) {
 
-				System.out.println("INVALIDDDD date: " + dateFound);
+//				System.out.println("INVALIDDDD date: " + dateFound);
 				continue;
 			}
 

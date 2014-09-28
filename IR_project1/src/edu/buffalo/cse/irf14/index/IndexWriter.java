@@ -1,9 +1,10 @@
 package edu.buffalo.cse.irf14.index;
 
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,8 @@ import edu.buffalo.cse.irf14.analysis.Token;
 import edu.buffalo.cse.irf14.analysis.TokenStream;
 import edu.buffalo.cse.irf14.analysis.Tokenizer;
 import edu.buffalo.cse.irf14.analysis.TokenizerException;
+import edu.buffalo.cse.irf14.analysis.util.DictionaryMetadata;
+import edu.buffalo.cse.irf14.analysis.util.TermMetadataForThisDoc;
 import edu.buffalo.cse.irf14.document.Document;
 import edu.buffalo.cse.irf14.document.FieldNames;
 
@@ -25,30 +28,35 @@ import edu.buffalo.cse.irf14.document.FieldNames;
  */
 public class IndexWriter {
 
+	/* Data structures for dictionaries and indexes */
+	Map<String, DictionaryMetadata> termDictionary = new HashMap<String, DictionaryMetadata>();
+	Map<Long, String> documentDictionary = new HashMap<Long, String>();
+	Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> termIndex;
+
+	/* File readers/writers */
+	public static String termIndexFileNamePrefix = File.separator + "term_index_";
+	public static String categoryIndexFileNamePrefix = File.separator + "category_index_";
+	public static String authorIndexFileNamePrefix = File.separator + "author_index_";
+	public static String placeIndexFileNamePart = File.separator + "place_index_";	
+	
+	public static String termDictFileName = File.separator + "dictionaryOfTerms.txt";
+	public static String docuDictFileName = File.separator + "dictionaryOfDocs.txt";
+	String indexDirectory;
+
+	/* File readers/writers */
+	Map<Character, ObjectOutputStream> listOfWriters = null;
+	ObjectOutputStream termDictionaryWriter = null;
+	ObjectOutputStream docuDictionaryWriter = null;
+
 	/* Booster scores and multipliers */
 	final int BOOSTER_MULTIPLIER = 1;
 	final int TITLE_BOOSTER = 3;
 	final int AUTHOR_BOOSTER = 2;
 	final int CONTENT_BOOSTER = 1;
-
-	/* File readers/writers */
-	String termIndexFileNamePrefix = File.separator + "termIndex_";
-	String termDictFileName = File.separator + "dictionaryOfTerms.txt";
-	String docuDictFileName = File.separator + "dictionaryOfDocs.txt";
-	String indexDirectory;
-
+	/* Miscellaneous declarations */
 	long startTime;
 	public float writeTime, analyzerTime;
 	long termIdCounter, docIdCounter;
-
-	public static Map<String, DictionaryMetadata> termDictionary = new HashMap<String, DictionaryMetadata>();
-	public static Map<Long, String> documentDictionary = new HashMap<Long, String>();
-
-	public static Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> termIndex;
-
-	Map<Character, BufferedWriter> listOfWriters = null;
-	BufferedWriter termDictionaryWriter = null;
-	BufferedWriter docuDictionaryWriter = null;
 
 	/**
 	 * Default constructor
@@ -58,35 +66,21 @@ public class IndexWriter {
 	 */
 	public IndexWriter(String indexDir) {
 		this.indexDirectory = indexDir;
-		listOfWriters = new HashMap<Character, BufferedWriter>();
+		listOfWriters = new HashMap<Character, ObjectOutputStream>();
 		termIndex = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
 
 		termIdCounter = 0;
 		docIdCounter = 0;
 
 		try {
-			/* For dictionaries */
-			File termDictFile = new File(indexDirectory + termDictFileName);
-			File docuDictFile = new File(indexDirectory + docuDictFileName);
-			if (termDictFile.exists())
-				termDictFile.delete();
-			termDictFile.createNewFile();
-			if (docuDictFile.exists())
-				docuDictFile.delete();
-			docuDictFile.createNewFile();
-			termDictionaryWriter = new BufferedWriter(new FileWriter(termDictFile, true));
-			docuDictionaryWriter = new BufferedWriter(new FileWriter(docuDictFile, true));
-
-			/*
-			 * For indexes: Create the files
-			 */
+			/* For indexes: Create the files */
 			File termIndexFile;
 			for (char i = 'a'; i <= 'z'; i++) {
 				termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + i + ".txt");
 				if (termIndexFile.exists()) {
 					termIndexFile.delete();
 				}
-				BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(termIndexFile, true));
+				ObjectOutputStream bufferedWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
 				listOfWriters.put(i, bufferedWriter);
 			}
 
@@ -96,14 +90,13 @@ public class IndexWriter {
 				termIndexFile.delete();
 			}
 			termIndexFile.createNewFile();
-			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(termIndexFile, true));
+			ObjectOutputStream bufferedWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
 			listOfWriters.put('_', bufferedWriter);
 
 		} catch (IOException e) {
 			System.err.println("IndexerException occured while writing to indexer files");
 			e.printStackTrace();
 		}
-
 		writeTime = 0.0f;
 	}
 
@@ -122,8 +115,8 @@ public class IndexWriter {
 		AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 
 		try {
-
-			String documentId = doc.getField(FieldNames.CATEGORY)[0] + doc.getField(FieldNames.FILEID)[0];
+			String category = (doc.getField(FieldNames.CATEGORY) != null && doc.getField(FieldNames.CATEGORY).length>0) ? doc.getField(FieldNames.CATEGORY)[0] : "";
+			String documentId = category + doc.getField(FieldNames.FILEID)[0];
 			documentDictionary.put(docIdCounter, documentId);
 
 			startTime = new Date().getTime();
@@ -169,7 +162,9 @@ public class IndexWriter {
 							 * Set booster-score and frequency (relevant
 							 * to this doc)
 							 */
-							int boosterScore = BOOSTER_MULTIPLIER * (fieldName.equals(FieldNames.TITLE) ? TITLE_BOOSTER : (fieldName.equals(FieldNames.AUTHOR) ? AUTHOR_BOOSTER : (fieldName.equals(FieldNames.CONTENT) ? CONTENT_BOOSTER : 1)));
+							int boosterScore = BOOSTER_MULTIPLIER * (fieldName.equals(FieldNames.TITLE) ? TITLE_BOOSTER :
+
+							(fieldName.equals(FieldNames.AUTHOR) ? AUTHOR_BOOSTER : (fieldName.equals(FieldNames.CONTENT) ? CONTENT_BOOSTER : 1)));
 
 							/* Put in the corresponding alphabet-index */
 							Map<Long, Map<Long, TermMetadataForThisDoc>> termIndexForThisAlphabet;
@@ -206,7 +201,9 @@ public class IndexWriter {
 								 * Increase overall term frequency in
 								 * term-dictionary
 								 */
-								termDictionary.get(token.getTermText()).setFrequency(termDictionary.get(token.getTermText()).getFrequency() + 1);
+								termDictionary.get(token.getTermText()).setFrequency(termDictionary.get(token.getTermText
+
+								()).getFrequency() + 1);
 							} else {
 								termMetadataForThisDoc = new TermMetadataForThisDoc(1, boosterScore, token.getTermText().charAt(0));
 								termIndexForThisDoc.put(docIdCounter, termMetadataForThisDoc);
@@ -237,128 +234,40 @@ public class IndexWriter {
 	/* Write the term-dictionary to disk */
 	private void writeTermDictionary() throws IOException {
 		if (termDictionary != null) {
-			for (String term : termDictionary.keySet()) {
-				termDictionaryWriter.write(term + " = " + termDictionary.get(term).getTermId() + ";" + termDictionary.get(term).getFrequency() + "\n");
-				
-			}
+			File termDictFile = new File(indexDirectory + termDictFileName);
+			if (termDictFile.exists())
+				termDictFile.delete();
+			termDictFile.createNewFile();
+			termDictionaryWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termDictFile, true)));
+			termDictionaryWriter.writeObject(termDictionary);
 		}
 	}
-	
+
 	/* Write the document-dictionary to disk */
 	private void writeDocumentDictionary() throws IOException {
 		if (documentDictionary != null) {
-			for (Long docId : documentDictionary.keySet()) {
-				docuDictionaryWriter.write(docId + " = " + documentDictionary.get(docId) + "\n");
-			}
+			File docuDictFile = new File(indexDirectory + docuDictFileName);
+			if (docuDictFile.exists())
+				docuDictFile.delete();
+			docuDictFile.createNewFile();
+			docuDictionaryWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(docuDictFile, true)));
+			docuDictionaryWriter.writeObject(documentDictionary);
 		}
 	}
 
 	private void writeToTermIndexWithBuff() throws IOException {
 		if (termIndex != null) {
-			BufferedWriter writer = null;
+			ObjectOutputStream writer = null;
 			Iterator<Character> alphabets = termIndex.keySet().iterator();
 			while (alphabets.hasNext()) {
 				char character = alphabets.next();
 				writer = listOfWriters.get(character);
 
 				Map<Long, Map<Long, TermMetadataForThisDoc>> termMap = termIndex.get(character);
-				StringBuilder strForThisAlphabet = new StringBuilder("");
-				if (termMap != null) {
-					Iterator<Long> termList = termMap.keySet().iterator();
-					while (termList.hasNext()) {
-						long termId = termList.next();
-						Map<Long, TermMetadataForThisDoc> docIdMap = termMap.get(termId);
-						strForThisAlphabet.append(termId + " = ");
-
-						if (docIdMap != null) {
-
-							Iterator<Long> docList = docIdMap.keySet().iterator();
-							if (docList.hasNext()) {
-								long docId = docList.next();
-								TermMetadataForThisDoc metadata = docIdMap.get(docId);
-								strForThisAlphabet.append(docId + ";" + metadata.getTermFrequency() + ";" + metadata.getBoosterScore());
-							}
-							while (docList.hasNext()) {
-								long docId = docList.next();
-								TermMetadataForThisDoc metadata = docIdMap.get(docId);
-								strForThisAlphabet.append(" --> " + docId + ";" + metadata.getTermFrequency() + ";" + metadata.getBoosterScore());
-							}
-						}
-						strForThisAlphabet.append("\n");
-					}
-				}
-				writer.write(strForThisAlphabet.toString());
+				writer.writeObject(termMap);
 			}
 		}
 	}
-
-	// private void writeToTermIndexWithRAF(Map<Long, TermMetadataForThisDoc>
-	// termsInThisDoc, long documentId) throws IndexerException, IOException {
-	// Iterator<Long> keySetIterator = termsInThisDoc.keySet().iterator();
-	//
-	// /* Move through each term in this doc */
-	// while (keySetIterator.hasNext()) {
-	// Long keyTermId = keySetIterator.next();
-	// String keyTerm = termsInThisDoc.get(keyTermId).getTermText();
-	// RandomAccessFile fileRW = null;
-	//
-	// if (keyTerm != null && keyTerm.length() > 0) {
-	// char firstChar = keyTerm.toLowerCase().charAt(0);
-	// if (firstChar >= 'a' && firstChar <= 'z') {
-	// fileRW = listOfFileRWs.get(firstChar);
-	// } else {
-	// fileRW = listOfFileRWs.get('_');
-	// }
-	//
-	// boolean found = false;
-	// String fileLine = null;
-	// long previousLinePos = 0;
-	//
-	// /* Find the keyTerm in the file */
-	// while ((fileLine = fileRW.readLine()) != null) {
-	// if (fileLine.matches("^(\\d+) .*$")) {
-	// String firstTermInLine = fileLine.substring(0, fileLine.indexOf(' '));
-	// if (firstTermInLine.trim().length() > 0 &&
-	// firstTermInLine.equals(String.valueOf(keyTermId))) {
-	// /*
-	// * Term already exists in the index file. We
-	// * need to transfer the metadata from the
-	// * local index to the file
-	// */
-	// String modifiedLine = "\n" + fileLine + " --> " + documentId + ";" +
-	// termsInThisDoc.get(keyTermId).getTermFrequency() + ";" +
-	// termsInThisDoc.get(keyTermId).getBoosterScore() + "\n";
-	//
-	// fileRW.seek(previousLinePos);
-	// String blankString = "";
-	// for (int i = 0; i < fileLine.length(); i++)
-	// blankString += " ";
-	// fileRW.writeBytes(blankString);
-	// fileRW.seek(fileRW.length());
-	// fileRW.writeBytes(modifiedLine);
-	// // fileRW.seek(previousLinePos + fileLine.length() + 2);
-	//
-	// fileRW.seek(0);
-	// found = true;
-	// break;
-	// }
-	// }
-	// previousLinePos = fileRW.getFilePointer();
-	// }
-	//
-	// /* Term wasn't found in the index file. We need to append it */
-	// if (!found) {
-	// String writerString = keyTermId + " " + documentId + ";" +
-	// termsInThisDoc.get(keyTermId).getTermFrequency() + ";" +
-	// termsInThisDoc.get(keyTermId).getBoosterScore() + "\n";
-	// fileRW.seek(fileRW.length());
-	// fileRW.writeBytes(writerString);
-	// fileRW.seek(0);
-	// }
-	// }
-	//
-	// }
-	// }
 
 	/**
 	 * Method that indicates that all open resources must be closed and cleaned
@@ -387,14 +296,16 @@ public class IndexWriter {
 		try {
 			for (char c = 'a'; c <= 'z'; c++) {
 				if (listOfWriters.get(c) != null) {
-					listOfWriters.get(c).close();
-					;
+					ObjectOutputStream stream = listOfWriters.get(c);
+					stream.flush();
+					stream.close();
 				}
 			}
 			if (listOfWriters.get('_') != null) {
+				listOfWriters.get('_').flush();
 				listOfWriters.get('_').close();
 			}
-			
+
 			if (termDictionaryWriter != null) {
 				termDictionaryWriter.close();
 			}
@@ -404,78 +315,6 @@ public class IndexWriter {
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IndexerException("IndexerException occured while writing to indexer files");
-		}
-	}
-
-
-	public class TermMetadataForThisDoc {
-		int termFrequency;
-		int boosterScore;
-		char firstLetter;
-
-		public TermMetadataForThisDoc(int termFrequency, int boosterScore, char firstLetter) {
-			super();
-			this.termFrequency = termFrequency;
-			this.boosterScore = boosterScore;
-			this.firstLetter = firstLetter;
-		}
-
-		public TermMetadataForThisDoc() {
-		}
-
-		public int getTermFrequency() {
-			return termFrequency;
-		}
-
-		public void setTermFrequency(int termFrequency) {
-			this.termFrequency = termFrequency;
-		}
-
-		public int getBoosterScore() {
-			return boosterScore;
-		}
-
-		public void setBoosterScore(int boosterScore) {
-			this.boosterScore = boosterScore;
-		}
-
-		public char getTermText() {
-			return firstLetter;
-		}
-
-		public void setTermText(char firstLetter) {
-			this.firstLetter = firstLetter;
-		}
-	}
-
-	public class DictionaryMetadata {
-		long termId;
-		int frequency;
-
-		public DictionaryMetadata() {
-
-		}
-
-		public DictionaryMetadata(long termId, int frequency) {
-			super();
-			this.termId = termId;
-			this.frequency = frequency;
-		}
-
-		public long getTermId() {
-			return termId;
-		}
-
-		public void setTermId(long termId) {
-			this.termId = termId;
-		}
-
-		public int getFrequency() {
-			return frequency;
-		}
-
-		public void setFrequency(int frequency) {
-			this.frequency = frequency;
 		}
 	}
 }

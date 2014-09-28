@@ -57,6 +57,7 @@ public class Runner {
 		Parser.tempMap = new HashMap<String, String>();
 
 		try {
+			System.out.println("Processing..");
 			for (String cat : catDirectories) {
 				dir = new File(ipDir + File.separator + cat);
 				files = dir.list();

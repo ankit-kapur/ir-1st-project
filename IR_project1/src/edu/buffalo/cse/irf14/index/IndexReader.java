@@ -3,6 +3,12 @@
  */
 package edu.buffalo.cse.irf14.index;
 
+import java.io.BufferedInputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,15 +19,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import edu.buffalo.cse.irf14.index.IndexWriter.DictionaryMetadata;
-import edu.buffalo.cse.irf14.index.IndexWriter.TermMetadataForThisDoc;
+import edu.buffalo.cse.irf14.analysis.util.DictionaryMetadata;
+import edu.buffalo.cse.irf14.analysis.util.TermMetadataForThisDoc;
 
 /**
  * @author nikhillo Class that emulates reading data back from a written index
  */
 public class IndexReader {
-	//public static Map<String, Integer> IndexWriter = new HashMap<String, Integer>();
 	public final String className = this.getClass().getName();
+
+	public Map<String, DictionaryMetadata> termDictionary = new HashMap<String, DictionaryMetadata>();
+	public Map<Long, String> documentDictionary = new HashMap<Long, String>();
+	public Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> index;
+
+	Map<Character, ObjectInputStream> listOfReaders = null;
+	ObjectInputStream termDictionaryReader = null;
+	ObjectInputStream docuDictionaryReader = null;
+
 	/**
 	 * Default constructor
 	 * 
@@ -39,6 +53,75 @@ public class IndexReader {
 	public IndexReader(String indexDir, IndexType type) {
 		this.indexDirectory = indexDir;
 		this.indexType = type;
+
+		try {
+			readFromFilesIntoObjects();
+		} catch (IndexerException e) {
+			System.err.println(e.getMessage());
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readFromFilesIntoObjects() throws IndexerException, IOException {
+
+		try {
+			/* Term dictionary */
+			File termDictFile = new File(indexDirectory + IndexWriter.termDictFileName);
+			if (termDictFile.exists()) {
+				termDictionaryReader = new ObjectInputStream(new BufferedInputStream(new FileInputStream(termDictFile)));
+				termDictionary = (Map<String, DictionaryMetadata>) termDictionaryReader.readObject();
+			}
+
+			/* Document dictionary */
+			File docDictFile = new File(indexDirectory + IndexWriter.docuDictFileName);
+			if (docDictFile.exists()) {
+				docuDictionaryReader = new ObjectInputStream(new BufferedInputStream(new FileInputStream(docDictFile)));
+				documentDictionary = (Map<Long, String>) docuDictionaryReader.readObject();
+			}
+
+			/* Index dictionary */
+			String fileNamePrefix = indexDirectory;
+			if (indexType.equals(IndexType.TERM))
+				fileNamePrefix += IndexWriter.termIndexFileNamePrefix;
+			else if (indexType.equals(IndexType.CATEGORY))
+				fileNamePrefix += IndexWriter.categoryIndexFileNamePrefix;
+			else if (indexType.equals(IndexType.AUTHOR))
+				fileNamePrefix += IndexWriter.authorIndexFileNamePrefix;
+			else if (indexType.equals(IndexType.PLACE))
+				fileNamePrefix += IndexWriter.placeIndexFileNamePart;
+
+			for (char c = 'a'; c <= 'z'; c++) {
+				File indexFileForAlphabet = new File(fileNamePrefix + c + ".txt");
+				if (indexFileForAlphabet.exists()) {
+					ObjectInputStream inputStream = null;
+					try {
+						inputStream = new ObjectInputStream(new FileInputStream(indexFileForAlphabet));
+						Map<Long, Map<Long, TermMetadataForThisDoc>> termMapForAlphabet = (Map<Long, Map<Long, TermMetadataForThisDoc>>) inputStream.readObject();
+						index.put(c, termMapForAlphabet);
+					} catch (EOFException e) {
+						e.printStackTrace();
+					} finally {
+						if (inputStream != null) {
+							inputStream.close();
+						}
+					}
+				}
+			}
+
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new IndexerException("IndexerException occured while reading from indexer files");
+		} finally {
+			if (termDictionaryReader != null) {
+				termDictionaryReader.close();
+			}
+			if (docuDictionaryReader != null) {
+				docuDictionaryReader.close();
+			}
+		}
 	}
 
 	/**
@@ -53,7 +136,7 @@ public class IndexReader {
 		try {
 
 			if (indexType != null) {
-				for (String s : IndexWriter.termDictionary.keySet()) {
+				for (String s : termDictionary.keySet()) {
 					totalKeyTerms++;
 				}
 
@@ -79,7 +162,7 @@ public class IndexReader {
 		try {
 
 			if (indexType != null) {
-				for (int i = 0; i < IndexWriter.documentDictionary.keySet().size(); i++) {
+				for (int i = 0; i < documentDictionary.keySet().size(); i++) {
 					totalvalueTerms++;
 				}
 
@@ -110,15 +193,15 @@ public class IndexReader {
 		if (term == null) {
 			return null;
 		} else {
-			termId = IndexWriter.termDictionary.get(term).getTermId();
+			termId = termDictionary.get(term).getTermId();
 			char firstChar = term.toLowerCase().charAt(0);
-			documentIdToObjectMap = IndexWriter.termIndex.get(firstChar).get(termId);
+			documentIdToObjectMap = index.get(firstChar).get(termId);
 
-			Iterator<Long> docIterator = documentIdToObjectMap.keySet().iterator(); 
+			Iterator<Long> docIterator = documentIdToObjectMap.keySet().iterator();
 			while (docIterator.hasNext()) {
 				docId = docIterator.next();
 				TermMetadataForThisDoc metadataForDocTerm = documentIdToObjectMap.get(docId);
-				postingsMap.put(IndexWriter.documentDictionary.get(docId), metadataForDocTerm.getTermFrequency());
+				postingsMap.put(documentDictionary.get(docId), metadataForDocTerm.getTermFrequency());
 			}
 		}
 		return postingsMap;
@@ -139,29 +222,25 @@ public class IndexReader {
 		if (k == -1 || k == 0) {
 
 			return null;
-		}
-		else
-		{
-			List<Map.Entry<String, DictionaryMetadata>> list = 
-					new ArrayList<Map.Entry<String, DictionaryMetadata>>(IndexWriter.termDictionary.entrySet());
-			Collections.sort(list,new Comparator<Map.Entry<String, DictionaryMetadata>>(){
-				public int compare(Map.Entry<String, DictionaryMetadata> o1,
-						Map.Entry<String, DictionaryMetadata> o2) {
+		} else {
+			List<Map.Entry<String, DictionaryMetadata>> list = new ArrayList<Map.Entry<String, DictionaryMetadata>>(termDictionary.entrySet());
+			Collections.sort(list, new Comparator<Map.Entry<String, DictionaryMetadata>>() {
+				public int compare(Map.Entry<String, DictionaryMetadata> o1, Map.Entry<String, DictionaryMetadata> o2) {
 					return o2.getValue().getFrequency() > o1.getValue().getFrequency() ? 1 : (o2.getValue().getFrequency() < o1.getValue().getFrequency() ? -1 : 0);
 				}
 			});
 
 			// Convert sorted map back to a Map
 			Map<String, DictionaryMetadata> sortedMap = new LinkedHashMap<String, DictionaryMetadata>();
-			java.util.Iterator<Entry<String, DictionaryMetadata>> iterator=list.iterator();
+			java.util.Iterator<Entry<String, DictionaryMetadata>> iterator = list.iterator();
 
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				Map.Entry<String, DictionaryMetadata> entry = iterator.next();
 				sortedMap.put(entry.getKey(), entry.getValue());
 			}
-			
+
 			for (Entry<String, DictionaryMetadata> entry : sortedMap.entrySet()) {
-				if(list.size()>k)
+				if (list.size() > k)
 					break;
 				finalList.add(entry.getKey());
 			}
