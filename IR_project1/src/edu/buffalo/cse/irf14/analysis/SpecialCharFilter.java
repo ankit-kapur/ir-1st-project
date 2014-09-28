@@ -75,7 +75,7 @@ public class SpecialCharFilter extends TokenFilter {
 	public boolean increment() throws TokenizerException {
 		try{
 			specialCharFilter(tStream);
-			if(tStream.hasNext())
+			if(tStream != null && tStream.hasNext())
 				return true;
 			else
 				return false;

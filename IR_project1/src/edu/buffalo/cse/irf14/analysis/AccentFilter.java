@@ -155,7 +155,7 @@ public static long accentTime=0;
 		long startTimeaccent = new Date().getTime();
 		try{ 
 			accentFilter(tStream);
-			if(tStream.hasNext())
+			if(tStream != null && tStream.hasNext())
 				return true;
 			else
 			{

@@ -133,8 +133,8 @@ public class Parser {
 			/* Content */
 			if (fileBody.substring(lastPointerPosition) != null) {
 				if (fileBody.substring(lastPointerPosition).trim() != null && !fileBody.substring(lastPointerPosition).isEmpty()) {
-				content = fileBody.substring(lastPointerPosition).trim();
-				content = (content.charAt(0) == '-') ? content.substring(1).trim() : content;
+					content = fileBody.substring(lastPointerPosition).trim();
+					content = (content.charAt(0) == '-') ? content.substring(1).trim() : content;
 				}
 				contentCount++;
 			}

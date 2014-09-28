@@ -50,6 +50,9 @@ public class TermAnalyzer implements Analyzer {
 		
 		for (TokenFilterType filterType : filterTypeList) {
 			try {
+				if (tokenStream!= null) {
+					tokenStream.reset();
+				}
 				TokenFilter filter = factory.getFilterByType(filterType, tokenStream);
 				while (filter.increment());
 				tokenStream = filter.getStream();

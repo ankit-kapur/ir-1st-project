@@ -181,7 +181,7 @@ public class StopWordFilter extends TokenFilter{
 	public boolean increment() throws TokenizerException {
 		try{
 			stopWordFilter(tStream);
-			if(tStream.hasNext())
+			if(tStream != null && tStream.hasNext())
 				return true;
 			else
 				return false;

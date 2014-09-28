@@ -128,7 +128,6 @@ public class IndexReader {
 					}
 				}
 			}
-			
 
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -206,25 +205,28 @@ public class IndexReader {
 	 */
 	public Map<String, Integer> getPostings(String term) {
 		// TODO:YOU MUST IMPLEMENT THIS
-		final Map<String, Integer> postingsMap = new HashMap<String, Integer>();
+		Map<String, Integer> postingsMap = null;
 		long termId = -1, docId = -1;
 		Map<Long, TermMetadataForThisDoc> documentIdToObjectMap = null;
 		if (term == null) {
 			return null;
 		} else {
-			termId = termDictionary.get(term).getTermId();
-			char firstChar = term.toLowerCase().charAt(0);
+			if (termDictionary.get(term) != null) {
+				postingsMap = new HashMap<String, Integer>();
+				termId = termDictionary.get(term).getTermId();
+				char firstChar = term.toLowerCase().charAt(0);
 
-			Map<Long, Map<Long, TermMetadataForThisDoc>> indexAlphabetMap = index.get(firstChar);
-			if (indexAlphabetMap != null) {
-				documentIdToObjectMap = indexAlphabetMap.get(termId);
+				Map<Long, Map<Long, TermMetadataForThisDoc>> indexAlphabetMap = index.get(firstChar);
+				if (indexAlphabetMap != null) {
+					documentIdToObjectMap = indexAlphabetMap.get(termId);
 
-				if (documentIdToObjectMap != null) {
-					Iterator<Long> docIterator = documentIdToObjectMap.keySet().iterator();
-					while (docIterator.hasNext()) {
-						docId = docIterator.next();
-						TermMetadataForThisDoc metadataForDocTerm = documentIdToObjectMap.get(docId);
-						postingsMap.put(documentDictionary.get(docId), metadataForDocTerm.getTermFrequency());
+					if (documentIdToObjectMap != null) {
+						Iterator<Long> docIterator = documentIdToObjectMap.keySet().iterator();
+						while (docIterator.hasNext()) {
+							docId = docIterator.next();
+							TermMetadataForThisDoc metadataForDocTerm = documentIdToObjectMap.get(docId);
+							postingsMap.put(documentDictionary.get(docId), metadataForDocTerm.getTermFrequency());
+						}
 					}
 				}
 			}

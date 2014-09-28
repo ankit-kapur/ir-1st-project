@@ -68,7 +68,7 @@ public class StemmerFilter extends TokenFilter {
 		try
 		{
 			stemmerFilter(tStream);
-			if(tStream.hasNext())
+			if(tStream != null && tStream.hasNext())
 				return true;
 			else
 				return false;

@@ -36,9 +36,11 @@ public class DateFilter extends TokenFilter {
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		if (tokenStream.hasNext()) {
+		if (tokenStream != null && tokenStream.hasNext()) {
 			Token token = tokenStream.next();
-			tokenStreamString += token.getTermText() + " ";
+			if (token != null) {
+				tokenStreamString += token.getTermText() + " ";
+			}
 			return true;
 		} else {
 			return false;
@@ -94,7 +96,8 @@ public class DateFilter extends TokenFilter {
 					df.parse(testDateString);
 					validDate = true;
 				} catch (ParseException e2) {
-//					System.out.println("INVALID date: " + testDateString);
+					// System.out.println("INVALID date: " +
+					// testDateString);
 					continue;
 				}
 			}
@@ -144,7 +147,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-//					System.out.println("INVALID date: " + dateFound);
+					// System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -191,7 +194,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-//					System.out.println("INVALID date: " + dateFound);
+					// System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -275,7 +278,7 @@ public class DateFilter extends TokenFilter {
 					df.parse(dateFound);
 					validDate = true;
 				} catch (ParseException e2) {
-//					System.out.println("INVALID date: " + dateFound);
+					// System.out.println("INVALID date: " + dateFound);
 					continue;
 				}
 			}
@@ -306,7 +309,7 @@ public class DateFilter extends TokenFilter {
 			String dayOfTheMonth = dateFound.substring(dateFound.indexOf(' ') + 1);
 			if (!(dayOfTheMonth != null && !dayOfTheMonth.trim().isEmpty() && Integer.parseInt(dayOfTheMonth) > 0 && Integer.parseInt(dayOfTheMonth) <= 31)) {
 
-//				System.out.println("INVALIDDDD date: " + dateFound);
+				// System.out.println("INVALIDDDD date: " + dateFound);
 				continue;
 			}
 
@@ -335,8 +338,9 @@ public class DateFilter extends TokenFilter {
 
 		/* Make a new stream with the modified string, and return it */
 		try {
-			modifiedTokenStream = new Tokenizer().consume(tokenStreamString);
-
+			if (tokenStreamString != null && !tokenStreamString.trim().isEmpty()) {
+				modifiedTokenStream = new Tokenizer().consume(tokenStreamString);
+			}
 			/*
 			 * For the special case (1) where 20041226 00:58:53 is required
 			 * to be a single token

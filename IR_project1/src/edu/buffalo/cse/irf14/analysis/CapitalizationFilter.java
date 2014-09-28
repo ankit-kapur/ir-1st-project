@@ -21,7 +21,7 @@ public class CapitalizationFilter extends TokenFilter {
 			adjacentwordCaps=false;
 			int count1=0;
 			String token1=null;
-			if(tStream.hasNext())
+			if(tStream != null && tStream.hasNext())
 			{
 				tStream.next();
 				Token tokens=tStream.getCurrent();
@@ -120,6 +120,7 @@ public class CapitalizationFilter extends TokenFilter {
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			throw new FilterException("Exception in Capitilization Filter");
 		}
 	}	
@@ -128,7 +129,7 @@ public class CapitalizationFilter extends TokenFilter {
 	public boolean increment() throws TokenizerException {
 		try{
 			captilizationFilter(tStream);
-			if(tStream.hasNext())
+			if(tStream != null && tStream.hasNext())
 				return true;
 			else
 				return false;
