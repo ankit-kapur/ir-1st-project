@@ -67,6 +67,7 @@ public class IndexReader {
 	@SuppressWarnings("unchecked")
 	private void readFromFilesIntoObjects() throws IndexerException, IOException {
 
+		index = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
 		try {
 			/* Term dictionary */
 			File termDictFile = new File(indexDirectory + IndexWriter.termDictFileName);
@@ -82,7 +83,7 @@ public class IndexReader {
 				documentDictionary = (Map<Long, String>) docuDictionaryReader.readObject();
 			}
 
-			/* Index dictionary */
+			/* Build prefix, according to the index type */
 			String fileNamePrefix = indexDirectory;
 			if (indexType.equals(IndexType.TERM))
 				fileNamePrefix += IndexWriter.termIndexFileNamePrefix;
@@ -93,6 +94,7 @@ public class IndexReader {
 			else if (indexType.equals(IndexType.PLACE))
 				fileNamePrefix += IndexWriter.placeIndexFileNamePart;
 
+			/* Get the index */
 			for (char c = 'a'; c <= 'z'; c++) {
 				File indexFileForAlphabet = new File(fileNamePrefix + c + ".txt");
 				if (indexFileForAlphabet.exists()) {
@@ -110,6 +112,23 @@ public class IndexReader {
 					}
 				}
 			}
+			/* For miscellaneous terms */
+			File indexFileForAlphabet = new File(fileNamePrefix + "_" + ".txt");
+			if (indexFileForAlphabet.exists()) {
+				ObjectInputStream inputStream = null;
+				try {
+					inputStream = new ObjectInputStream(new FileInputStream(indexFileForAlphabet));
+					Map<Long, Map<Long, TermMetadataForThisDoc>> termMapForAlphabet = (Map<Long, Map<Long, TermMetadataForThisDoc>>) inputStream.readObject();
+					index.put('_', termMapForAlphabet);
+				} catch (EOFException e) {
+					e.printStackTrace();
+				} finally {
+					if (inputStream != null) {
+						inputStream.close();
+					}
+				}
+			}
+			
 
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -195,13 +214,19 @@ public class IndexReader {
 		} else {
 			termId = termDictionary.get(term).getTermId();
 			char firstChar = term.toLowerCase().charAt(0);
-			documentIdToObjectMap = index.get(firstChar).get(termId);
 
-			Iterator<Long> docIterator = documentIdToObjectMap.keySet().iterator();
-			while (docIterator.hasNext()) {
-				docId = docIterator.next();
-				TermMetadataForThisDoc metadataForDocTerm = documentIdToObjectMap.get(docId);
-				postingsMap.put(documentDictionary.get(docId), metadataForDocTerm.getTermFrequency());
+			Map<Long, Map<Long, TermMetadataForThisDoc>> indexAlphabetMap = index.get(firstChar);
+			if (indexAlphabetMap != null) {
+				documentIdToObjectMap = indexAlphabetMap.get(termId);
+
+				if (documentIdToObjectMap != null) {
+					Iterator<Long> docIterator = documentIdToObjectMap.keySet().iterator();
+					while (docIterator.hasNext()) {
+						docId = docIterator.next();
+						TermMetadataForThisDoc metadataForDocTerm = documentIdToObjectMap.get(docId);
+						postingsMap.put(documentDictionary.get(docId), metadataForDocTerm.getTermFrequency());
+					}
+				}
 			}
 		}
 		return postingsMap;
