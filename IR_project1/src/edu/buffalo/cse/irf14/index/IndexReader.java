@@ -160,9 +160,8 @@ public class IndexReader {
 		try {
 
 			if (indexType != null) {
-				for (String s : termDictionary.keySet()) {
+				for (int i = 0; i < termDictionary.keySet().size(); i++)
 					totalKeyTerms++;
-				}
 
 			}
 		} catch (Exception e) {
