@@ -99,7 +99,7 @@ public class Runner {
 
 			writer.close();
 
-			/* --------TEST CODE--------- */
+			/* --------TEST CODE--------- 
 			File file = new File("C:\\Users\\ankit.kapur\\Desktop\\places.txt");
 			// if file doesnt exists, then create it
 
@@ -117,7 +117,7 @@ public class Runner {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			/* --------TEST CODE--------- */
 
 			System.out.println("Time for parser ==> " + parserTime);

@@ -50,7 +50,7 @@ public class IndexWriter {
 	public static String authorDictFileName = File.separator + "dictionary_authors.txt";
 	public static String placesDictFileName = File.separator + "dictionary_places.txt";
 
-	public static String docuDictFileName = File.separator + "document_dictionary.txt";
+	public static String docuDictFileName = File.separator + "dictionaryOfDocs.txt";
 	String indexDirectory;
 
 	/* File writer for document dictionary */
@@ -116,7 +116,6 @@ public class IndexWriter {
 			List<FieldNames> fieldNameList = new ArrayList<FieldNames>();
 			fieldNameList.add(FieldNames.TITLE);
 			fieldNameList.add(FieldNames.CONTENT);
-			fieldNameList.add(FieldNames.NEWSDATE);
 
 			for (FieldNames fieldName : fieldNameList) {
 				if (doc.getField(fieldName) != null) {
@@ -281,7 +280,7 @@ public class IndexWriter {
 			if (doc.getField(fieldName) != null) {
 				fieldText = doc.getField(fieldName)[0];
 				TokenStream tokenstream = tokenizer.consume(fieldText);
-
+				
 				Analyzer analyzer = analyzerFactory.getAnalyzerForField(fieldName, tokenstream);
 				analyzer.processThroughFilters();
 				tokenstream = analyzer.getStream();

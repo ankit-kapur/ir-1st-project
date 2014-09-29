@@ -159,10 +159,12 @@ public class IndexReader {
 		String gMethodName = "getTotalKeyTerms";
 		try {
 
-			if (indexType != null) {
-				for (String s : termDictionary.keySet()) {
+			if (indexType != null) 
+			{
+				for (int i = 0; i < termDictionary.keySet().size(); i++) {
 					totalKeyTerms++;
 				}
+
 
 			}
 		} catch (Exception e) {
