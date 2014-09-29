@@ -65,8 +65,8 @@ public class IndexWriter {
 	final int CATEGORY_BOOSTER = 3;
 	
 	/* Miscellaneous declarations */
-	long startTime;
-	public float writeTime, analyzerTime;
+//	long startTime;
+//	public float writeTime, analyzerTime;
 	long docIdCounter, termIdCounter, authorIdCounter, categoryIdCounter, placeIdCounter;
 
 	/**
@@ -86,7 +86,7 @@ public class IndexWriter {
 		termIdCounter = 0;
 		docIdCounter = 0;
 
-		writeTime = 0.0f;
+//		writeTime = 0.0f;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class IndexWriter {
 			String documentId = category + doc.getField(FieldNames.FILEID)[0];
 			documentDictionary.put(docIdCounter, documentId);
 
-			startTime = new Date().getTime();
+//			startTime = new Date().getTime();
 			Tokenizer tokenizer = new Tokenizer();
 			String fieldText = null;
 
@@ -429,7 +429,7 @@ public class IndexWriter {
 				}
 			}
 			
-			analyzerTime += (new Date().getTime() - startTime) / 1000.0;
+//			analyzerTime += (new Date().getTime() - startTime) / 1000.0;
 			docIdCounter++;
 
 		} catch (TokenizerException e) {
@@ -508,7 +508,7 @@ public class IndexWriter {
 	public void close() throws IndexerException {
 
 		try {
-			startTime = new Date().getTime();
+//			startTime = new Date().getTime();
 
 			/* Write the document dictionaries to files */
 			writeDocumentDictionary();
@@ -525,14 +525,14 @@ public class IndexWriter {
 			writeIndexToFile(authorIndexFileNamePrefix, authorIndex);
 			writeIndexToFile(placeIndexFileNamePrefix, placesIndex);
 
-			writeTime += (new Date().getTime() - startTime) / 1000.0;
+//			writeTime += (new Date().getTime() - startTime) / 1000.0;
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IndexerException("IndexerException occured while writing to indexer files");
 		}
 
-		System.out.println("\nTime for filtering ==> " + analyzerTime);
-		System.out.println("Time for writing ==> " + writeTime);
+//		System.out.println("\nTime for filtering ==> " + analyzerTime);
+//		System.out.println("Time for writing ==> " + writeTime);
 
 		try {
 			if (docuDictionaryWriter != null) {

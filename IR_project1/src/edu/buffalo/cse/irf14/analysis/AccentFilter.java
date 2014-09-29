@@ -1,5 +1,4 @@
 package edu.buffalo.cse.irf14.analysis;
-import java.util.Date;
 import java.util.HashMap;
 /**
  * @author Harsh
@@ -152,15 +151,15 @@ public static long accentTime=0;
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		long startTimeaccent = new Date().getTime();
+//		long startTimeaccent = new Date().getTime();
 		try{ 
 			accentFilter(tStream);
 			if(tStream != null && tStream.hasNext())
 				return true;
 			else
 			{
-				long endTimeAccent = new Date().getTime();
-				accentTime=(endTimeAccent-startTimeaccent)/1000;
+//				long endTimeAccent = new Date().getTime();
+//				accentTime=(endTimeAccent-startTimeaccent)/1000;
 				return false;
 				
 			

@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 
 public class DateFilter extends TokenFilter {
 
+//	public static float dateTime;
+	
 	TokenStream tokenStream;
 
 	List<String> datePatternString = new ArrayList<String>();
@@ -61,6 +63,7 @@ public class DateFilter extends TokenFilter {
 	@SuppressWarnings("deprecation")
 	public TokenStream processFilterForToken() throws FilterException {
 
+		long startTime = new Date().getTime();
 		TokenStream modifiedTokenStream = null;
 		tokenStreamString = tokenStreamString.trim();
 		String dateFound = null;
@@ -360,6 +363,7 @@ public class DateFilter extends TokenFilter {
 			throw new FilterException("A Tokenizer exception occured in the consume method, while tokenizing the string: " + tokenStreamString);
 		}
 
+//		dateTime += (new Date().getTime() - startTime) / 1000.0;
 		return modifiedTokenStream;
 	}
 
