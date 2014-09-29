@@ -40,6 +40,7 @@ public class PlaceAnalyzer implements Analyzer {
 
 		/* Order of filters */
 		filterTypeList.add(TokenFilterType.CAPITALIZATION);
+		filterTypeList.add(TokenFilterType.NUMERIC);
 		filterTypeList.add(TokenFilterType.SYMBOL);
 		filterTypeList.add(TokenFilterType.SPECIALCHARS);
 		

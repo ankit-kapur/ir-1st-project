@@ -42,11 +42,11 @@ public class TitleAnalyzer implements Analyzer {
 		filterTypeList.add(TokenFilterType.DATE);
 		filterTypeList.add(TokenFilterType.CAPITALIZATION);
 		filterTypeList.add(TokenFilterType.SYMBOL);
-		filterTypeList.add(TokenFilterType.NUMERIC);
 		filterTypeList.add(TokenFilterType.SPECIALCHARS);
-		filterTypeList.add(TokenFilterType.STEMMER);
 		filterTypeList.add(TokenFilterType.STOPWORD);
-	//	filterTypeList.add(TokenFilterType.ACCENT);
+		filterTypeList.add(TokenFilterType.STEMMER);
+		filterTypeList.add(TokenFilterType.NUMERIC);
+		filterTypeList.add(TokenFilterType.ACCENT);
 		
 		for (TokenFilterType filterType : filterTypeList) {
 			try {

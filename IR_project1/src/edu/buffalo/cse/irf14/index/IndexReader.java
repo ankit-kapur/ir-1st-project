@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import edu.buffalo.cse.irf14.analysis.util.DictionaryMetadata;
 import edu.buffalo.cse.irf14.analysis.util.TermMetadataForThisDoc;
@@ -68,10 +67,27 @@ public class IndexReader {
 	@SuppressWarnings("unchecked")
 	private void readFromFilesIntoObjects() throws IndexerException, IOException {
 
+		/* Build file names, according to the index type */
+		String dictionaryFileName = null;
+		String fileNamePrefix = indexDirectory;
+		if (indexType.equals(IndexType.TERM)) {
+			fileNamePrefix += IndexWriter.termIndexFileNamePrefix;
+			dictionaryFileName = IndexWriter.termDictFileName;
+		} else if (indexType.equals(IndexType.CATEGORY)) {
+			fileNamePrefix += IndexWriter.categoryIndexFileNamePrefix;
+			dictionaryFileName = IndexWriter.categDictFileName;
+		} else if (indexType.equals(IndexType.AUTHOR)) {
+			fileNamePrefix += IndexWriter.authorIndexFileNamePrefix;
+			dictionaryFileName = IndexWriter.authorDictFileName;
+		} else if (indexType.equals(IndexType.PLACE)) {
+			fileNamePrefix += IndexWriter.placeIndexFileNamePrefix;
+			dictionaryFileName = IndexWriter.placesDictFileName;
+		}
+
 		index = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
 		try {
 			/* Term dictionary */
-			File termDictFile = new File(indexDirectory + IndexWriter.termDictFileName);
+			File termDictFile = new File(indexDirectory + dictionaryFileName);
 			if (termDictFile.exists()) {
 				termDictionaryReader = new ObjectInputStream(new BufferedInputStream(new FileInputStream(termDictFile)));
 				termDictionary = (Map<String, DictionaryMetadata>) termDictionaryReader.readObject();
@@ -83,17 +99,6 @@ public class IndexReader {
 				docuDictionaryReader = new ObjectInputStream(new BufferedInputStream(new FileInputStream(docDictFile)));
 				documentDictionary = (Map<Long, String>) docuDictionaryReader.readObject();
 			}
-
-			/* Build prefix, according to the index type */
-			String fileNamePrefix = indexDirectory;
-			if (indexType.equals(IndexType.TERM))
-				fileNamePrefix += IndexWriter.termIndexFileNamePrefix;
-			else if (indexType.equals(IndexType.CATEGORY))
-				fileNamePrefix += IndexWriter.categoryIndexFileNamePrefix;
-			else if (indexType.equals(IndexType.AUTHOR))
-				fileNamePrefix += IndexWriter.authorIndexFileNamePrefix;
-			else if (indexType.equals(IndexType.PLACE))
-				fileNamePrefix += IndexWriter.placeIndexFileNamePrefix;
 
 			/* Get the index */
 			for (char c = 'a'; c <= 'z'; c++) {
@@ -271,7 +276,7 @@ public class IndexReader {
 				finalList.add(entry.getKey());
 				if (finalList.size() >= k)
 					break;
-				
+
 			}
 		}
 		return finalList;
@@ -284,6 +289,7 @@ public class IndexReader {
 	 * @param terms
 	 *             The ordered set of terms to AND, similar to getPostings()
 	 *             the terms would be passed through the necessary Analyzer.
+	 * 
 	 * @return A Map (if all terms are found) containing FileId as the key and
 	 *         number of occurrences as the value, the number of occurrences
 	 *         would be the sum of occurrences for each participating term.
@@ -291,24 +297,83 @@ public class IndexReader {
 	 */
 
 	public Map<String, Integer> query(String... terms) {
-		// TODO : BONUS ONLY
-		String[] queryTerm=terms;
-		for(int i=0;i<queryTerm.length;)
-		{
-			long termId = termDictionary.get(queryTerm[i]).getTermId();
-			char firstChar = queryTerm[i].toLowerCase().charAt(0);
-			Map<Long, TermMetadataForThisDoc> indexAlphabetMap_i = index.get(firstChar).get(termId);
-			for(Long s:indexAlphabetMap_i.keySet())
-			{
-				i=i+1;
-				if(indexAlphabetMap_i.keySet().contains(termId));
-				{
-					
+
+		Map<String, Integer> returnMap = null;
+
+		/* TermID vs FileID */
+		Map<Long, List<Long>> termVsDocumentMap = new HashMap<Long, List<Long>>();
+
+		for (String term : terms) {
+			if (term != null && term.length() > 0) {
+				Map<Long, Map<Long, TermMetadataForThisDoc>> alphabetIndex = index.get(term.charAt(0));
+				if (alphabetIndex != null) {
+					DictionaryMetadata metadata = termDictionary.get(term);
+					if (metadata != null) {
+						Long termID = metadata.getTermId();
+						Map<Long, TermMetadataForThisDoc> docMap = alphabetIndex.get(termID);
+						if (docMap != null) {
+							List<Long> docIdList = new ArrayList<Long>();
+							for (Long docId : docMap.keySet()) {
+								docIdList.add(docId);
+							}
+							termVsDocumentMap.put(termID, docIdList);
+						}
+					}
 				}
 			}
 		}
-		
-		
-		return null;
+
+		if (termVsDocumentMap != null && !termVsDocumentMap.isEmpty()) {
+			Iterator<Long> mapIterator = termVsDocumentMap.keySet().iterator();
+			Long firstTermId = mapIterator.next();
+			List<Long> firstDocList = termVsDocumentMap.get(firstTermId);
+			List<Long> docIDsMatched = new ArrayList<Long>();
+			docIDsMatched.addAll(firstDocList);
+
+			while (mapIterator.hasNext()) {
+
+				Long currentTermId = mapIterator.next();
+				List<Long> currentDocList = termVsDocumentMap.get(currentTermId);
+				for (Long firstDocsId : firstDocList) {
+					if (!currentDocList.contains(firstDocsId)) {
+						docIDsMatched.remove(firstDocsId);
+					}
+				}
+			}
+
+			/* Create the return map based on the list docIDsMatched */
+			returnMap = new HashMap<String, Integer>();
+			for (Long docId : docIDsMatched) {
+				String termId = documentDictionary.get(docId);
+				Integer frequency = 0;
+
+				/* Calculate frequency */
+				for (String term : terms) {
+					if (term != null && term.length() > 0) {
+						Map<Long, Map<Long, TermMetadataForThisDoc>> alphabetIndex = index.get(term.charAt(0));
+						if (alphabetIndex != null) {
+							DictionaryMetadata metadata = termDictionary.get(term);
+							if (metadata != null) {
+								Long termID = metadata.getTermId();
+								Map<Long, TermMetadataForThisDoc> docMap = alphabetIndex.get(termID);
+								if (docMap != null) {
+									TermMetadataForThisDoc termMetadata = docMap.get(docId);
+									if (termMetadata != null) {
+										frequency += termMetadata.getTermFrequency();
+									}
+								}
+							}
+						}
+					}
+				}
+
+				returnMap.put(termId, frequency);
+			}
+		}
+
+		if (returnMap != null && returnMap.isEmpty()) {
+			returnMap = null;
+		}
+		return returnMap;
 	}
 }
