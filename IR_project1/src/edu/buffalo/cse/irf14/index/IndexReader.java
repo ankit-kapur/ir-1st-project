@@ -93,7 +93,7 @@ public class IndexReader {
 			else if (indexType.equals(IndexType.AUTHOR))
 				fileNamePrefix += IndexWriter.authorIndexFileNamePrefix;
 			else if (indexType.equals(IndexType.PLACE))
-				fileNamePrefix += IndexWriter.placeIndexFileNamePart;
+				fileNamePrefix += IndexWriter.placeIndexFileNamePrefix;
 
 			/* Get the index */
 			for (char c = 'a'; c <= 'z'; c++) {
@@ -292,6 +292,23 @@ public class IndexReader {
 
 	public Map<String, Integer> query(String... terms) {
 		// TODO : BONUS ONLY
+		String[] queryTerm=terms;
+		for(int i=0;i<queryTerm.length;)
+		{
+			long termId = termDictionary.get(queryTerm[i]).getTermId();
+			char firstChar = queryTerm[i].toLowerCase().charAt(0);
+			Map<Long, TermMetadataForThisDoc> indexAlphabetMap_i = index.get(firstChar).get(termId);
+			for(Long s:indexAlphabetMap_i.keySet())
+			{
+				i=i+1;
+				if(indexAlphabetMap_i.keySet().contains(termId));
+				{
+					
+				}
+			}
+		}
+		
+		
 		return null;
 	}
 }

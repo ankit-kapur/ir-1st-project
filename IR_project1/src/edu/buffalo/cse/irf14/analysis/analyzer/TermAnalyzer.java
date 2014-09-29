@@ -20,7 +20,7 @@ public class TermAnalyzer implements Analyzer {
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		if (tokenStream.hasNext()) {
+		if (tokenStream != null && tokenStream.hasNext()) {
 			tokenStream.next();
 			return true;
 		} else {

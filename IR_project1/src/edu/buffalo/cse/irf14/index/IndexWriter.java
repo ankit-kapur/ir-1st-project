@@ -8,7 +8,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,23 +28,32 @@ import edu.buffalo.cse.irf14.document.FieldNames;
 public class IndexWriter {
 
 	/* Data structures for dictionaries and indexes */
-	Map<String, DictionaryMetadata> termDictionary = new HashMap<String, DictionaryMetadata>();
 	Map<Long, String> documentDictionary = new HashMap<Long, String>();
+	Map<String, DictionaryMetadata> termDictionary = new HashMap<String, DictionaryMetadata>();
+	Map<String, DictionaryMetadata> categoryDictionary = new HashMap<String, DictionaryMetadata>();
+	Map<String, DictionaryMetadata> authorDictionary = new HashMap<String, DictionaryMetadata>();
+	Map<String, DictionaryMetadata> placesDictionary = new HashMap<String, DictionaryMetadata>();
+
 	Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> termIndex;
+	Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> categoryIndex;
+	Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> authorIndex;
+	Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> placesIndex;
 
 	/* File readers/writers */
 	public static String termIndexFileNamePrefix = File.separator + "term_index_";
 	public static String categoryIndexFileNamePrefix = File.separator + "category_index_";
 	public static String authorIndexFileNamePrefix = File.separator + "author_index_";
-	public static String placeIndexFileNamePart = File.separator + "place_index_";
+	public static String placeIndexFileNamePrefix = File.separator + "place_index_";
 
-	public static String termDictFileName = File.separator + "dictionaryOfTerms.txt";
+	public static String termDictFileName = File.separator + "dictionary_terms.txt";
+	public static String categDictFileName = File.separator + "dictionary_categories.txt";
+	public static String authorDictFileName = File.separator + "dictionary_authors.txt";
+	public static String placesDictFileName = File.separator + "dictionary_places.txt";
+
 	public static String docuDictFileName = File.separator + "dictionaryOfDocs.txt";
 	String indexDirectory;
 
-	/* File readers/writers */
-//	Map<Character, ObjectOutputStream> listOfWriters = null;
-	ObjectOutputStream termDictionaryWriter = null;
+	/* File writer for document dictionary */
 	ObjectOutputStream docuDictionaryWriter = null;
 
 	/* Booster scores and multipliers */
@@ -53,10 +61,13 @@ public class IndexWriter {
 	final int TITLE_BOOSTER = 3;
 	final int AUTHOR_BOOSTER = 2;
 	final int CONTENT_BOOSTER = 1;
+	final int PLACES_BOOSTER = 2;
+	final int CATEGORY_BOOSTER = 3;
+	
 	/* Miscellaneous declarations */
 	long startTime;
 	public float writeTime, analyzerTime;
-	long termIdCounter, docIdCounter;
+	long docIdCounter, termIdCounter, authorIdCounter, categoryIdCounter, placeIdCounter;
 
 	/**
 	 * Default constructor
@@ -66,8 +77,11 @@ public class IndexWriter {
 	 */
 	public IndexWriter(String indexDir) {
 		this.indexDirectory = indexDir;
-//		listOfWriters = new HashMap<Character, ObjectOutputStream>();
+		// listOfWriters = new HashMap<Character, ObjectOutputStream>();
 		termIndex = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
+		categoryIndex = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
+		authorIndex = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
+		placesIndex = new HashMap<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>>();
 
 		termIdCounter = 0;
 		docIdCounter = 0;
@@ -97,13 +111,11 @@ public class IndexWriter {
 			startTime = new Date().getTime();
 			Tokenizer tokenizer = new Tokenizer();
 			String fieldText = null;
+
+			/* Building the TERM index */
 			List<FieldNames> fieldNameList = new ArrayList<FieldNames>();
 			fieldNameList.add(FieldNames.TITLE);
-			fieldNameList.add(FieldNames.AUTHOR);
 			fieldNameList.add(FieldNames.CONTENT);
-
-			// Map<Long, TermMetadataForThisDoc> termsInThisDocument = new
-			// HashMap<Long, TermMetadataForThisDoc>();
 
 			for (FieldNames fieldName : fieldNameList) {
 				if (doc.getField(fieldName) != null) {
@@ -114,8 +126,9 @@ public class IndexWriter {
 					Analyzer analyzer = analyzerFactory.getAnalyzerForField(fieldName, tokenstream);
 					analyzer.processThroughFilters();
 					tokenstream = analyzer.getStream();
+
 					/* Transfer tokenstream into the dictionary */
-					if (fieldName.equals(FieldNames.AUTHOR) || fieldName.equals(FieldNames.TITLE) || fieldName.equals(FieldNames.NEWSDATE) || fieldName.equals(FieldNames.CONTENT)) {
+					if (fieldName.equals(FieldNames.TITLE) || fieldName.equals(FieldNames.NEWSDATE) || fieldName.equals(FieldNames.CONTENT)) {
 						tokenstream.reset();
 						while (tokenstream.hasNext()) {
 							Token token = tokenstream.next();
@@ -143,9 +156,7 @@ public class IndexWriter {
 							 * Set booster-score and frequency (relevant
 							 * to this doc)
 							 */
-							int boosterScore = BOOSTER_MULTIPLIER * (fieldName.equals(FieldNames.TITLE) ? TITLE_BOOSTER :
-
-							(fieldName.equals(FieldNames.AUTHOR) ? AUTHOR_BOOSTER : (fieldName.equals(FieldNames.CONTENT) ? CONTENT_BOOSTER : 1)));
+							int boosterScore = BOOSTER_MULTIPLIER * (fieldName.equals(FieldNames.TITLE) ? TITLE_BOOSTER : (fieldName.equals(FieldNames.CONTENT) ? CONTENT_BOOSTER : 1));
 
 							/* Put in the corresponding alphabet-index */
 							Map<Long, Map<Long, TermMetadataForThisDoc>> termIndexForThisAlphabet;
@@ -171,7 +182,7 @@ public class IndexWriter {
 								termIndexForThisAlphabet.put(termId, termIndexForThisDoc);
 							}
 
-							/* The doc */
+							/* For the doc */
 							TermMetadataForThisDoc termMetadataForThisDoc = null;
 							if (termIndexForThisDoc.containsKey(docIdCounter)) {
 								termMetadataForThisDoc = termIndexForThisDoc.get(docIdCounter);
@@ -187,33 +198,243 @@ public class IndexWriter {
 				}
 			}
 
+			/* Building the AUTHOR index */
+			FieldNames fieldName = FieldNames.AUTHOR;
+			if (doc.getField(fieldName) != null) {
+				fieldText = doc.getField(fieldName)[0];
+				TokenStream tokenstream = tokenizer.consume(fieldText);
+
+				Analyzer analyzer = analyzerFactory.getAnalyzerForField(fieldName, tokenstream);
+				analyzer.processThroughFilters();
+				tokenstream = analyzer.getStream();
+
+				/* Transfer tokenstream into the dictionary */
+				tokenstream.reset();
+				while (tokenstream.hasNext()) {
+					Token token = tokenstream.next();
+					Long termId = authorIdCounter;
+
+					/*
+					 * Check if the dictionary already contains the term.
+					 * If yes, get the ID. If not, add the term to the dictionary
+					 */
+					if (authorDictionary.containsKey(token.getTermText())) {
+						termId = authorDictionary.get(token.getTermText()).getTermId();
+						/*
+						 * Increase overall term frequency in
+						 * term-dictionary
+						 */
+						authorDictionary.get(token.getTermText()).setFrequency(authorDictionary.get(token.getTermText()).getFrequency() + 1);
+
+					} else {
+						DictionaryMetadata dictionaryMetadata = new DictionaryMetadata(authorIdCounter++, 1);
+						authorDictionary.put(token.getTermText(), dictionaryMetadata);
+					}
+
+					/*
+					 * Set booster-score and frequency (relevant to this
+					 * doc)
+					 */
+					int boosterScore = BOOSTER_MULTIPLIER * AUTHOR_BOOSTER;
+
+					/* Put in the corresponding alphabet-index */
+					Map<Long, Map<Long, TermMetadataForThisDoc>> termIndexForThisAlphabet;
+					char firstChar = token.getTermText().toLowerCase().charAt(0);
+					if (authorIndex.containsKey(firstChar)) {
+						termIndexForThisAlphabet = authorIndex.get(firstChar);
+					} else {
+						termIndexForThisAlphabet = new HashMap<Long, Map<Long, TermMetadataForThisDoc>>();
+
+						if (firstChar >= 'a' && firstChar <= 'z') {
+							authorIndex.put(firstChar, termIndexForThisAlphabet);
+						} else {
+							authorIndex.put('_', termIndexForThisAlphabet);
+						}
+					}
+
+					/* Put in the term index */
+					Map<Long, TermMetadataForThisDoc> termIndexForThisDoc;
+					if (termIndexForThisAlphabet.containsKey(termId)) {
+						termIndexForThisDoc = termIndexForThisAlphabet.get(termId);
+					} else {
+						termIndexForThisDoc = new HashMap<Long, TermMetadataForThisDoc>();
+						termIndexForThisAlphabet.put(termId, termIndexForThisDoc);
+					}
+
+					/* For the doc */
+					TermMetadataForThisDoc termMetadataForThisDoc = null;
+					if (termIndexForThisDoc.containsKey(docIdCounter)) {
+						termMetadataForThisDoc = termIndexForThisDoc.get(docIdCounter);
+						termMetadataForThisDoc.setTermFrequency(termMetadataForThisDoc.getTermFrequency() + 1);
+						termMetadataForThisDoc.setBoosterScore(termMetadataForThisDoc.getBoosterScore() + boosterScore);
+
+					} else {
+						termMetadataForThisDoc = new TermMetadataForThisDoc(1, boosterScore, token.getTermText().charAt(0));
+						termIndexForThisDoc.put(docIdCounter, termMetadataForThisDoc);
+					}
+				}
+			}
+			
+			/* Building the PLACES index */
+			fieldName = FieldNames.PLACE;
+			if (doc.getField(fieldName) != null) {
+				fieldText = doc.getField(fieldName)[0];
+				TokenStream tokenstream = tokenizer.consume(fieldText);
+
+				Analyzer analyzer = analyzerFactory.getAnalyzerForField(fieldName, tokenstream);
+				analyzer.processThroughFilters();
+				tokenstream = analyzer.getStream();
+
+				/* Transfer tokenstream into the dictionary */
+				tokenstream.reset();
+				while (tokenstream.hasNext()) {
+					Token token = tokenstream.next();
+					Long termId = placeIdCounter;
+
+					/*
+					 * Check if the dictionary already contains the term.
+					 * If yes, get the ID. If not, add the term to the dictionary
+					 */
+					if (placesDictionary.containsKey(token.getTermText())) {
+						termId = placesDictionary.get(token.getTermText()).getTermId();
+						/*
+						 * Increase overall term frequency in
+						 * term-dictionary
+						 */
+						placesDictionary.get(token.getTermText()).setFrequency(placesDictionary.get(token.getTermText()).getFrequency() + 1);
+
+					} else {
+						DictionaryMetadata dictionaryMetadata = new DictionaryMetadata(placeIdCounter++, 1);
+						placesDictionary.put(token.getTermText(), dictionaryMetadata);
+					}
+
+					/*
+					 * Set booster-score and frequency (relevant to this
+					 * doc)
+					 */
+					int boosterScore = BOOSTER_MULTIPLIER * PLACES_BOOSTER;
+
+					/* Put in the corresponding alphabet-index */
+					Map<Long, Map<Long, TermMetadataForThisDoc>> termIndexForThisAlphabet;
+					char firstChar = token.getTermText().toLowerCase().charAt(0);
+					if (placesIndex.containsKey(firstChar)) {
+						termIndexForThisAlphabet = placesIndex.get(firstChar);
+					} else {
+						termIndexForThisAlphabet = new HashMap<Long, Map<Long, TermMetadataForThisDoc>>();
+
+						if (firstChar >= 'a' && firstChar <= 'z') {
+							placesIndex.put(firstChar, termIndexForThisAlphabet);
+						} else {
+							placesIndex.put('_', termIndexForThisAlphabet);
+						}
+					}
+
+					/* Put in the term index */
+					Map<Long, TermMetadataForThisDoc> termIndexForThisDoc;
+					if (termIndexForThisAlphabet.containsKey(termId)) {
+						termIndexForThisDoc = termIndexForThisAlphabet.get(termId);
+					} else {
+						termIndexForThisDoc = new HashMap<Long, TermMetadataForThisDoc>();
+						termIndexForThisAlphabet.put(termId, termIndexForThisDoc);
+					}
+
+					/* For the doc */
+					TermMetadataForThisDoc termMetadataForThisDoc = null;
+					if (termIndexForThisDoc.containsKey(docIdCounter)) {
+						termMetadataForThisDoc = termIndexForThisDoc.get(docIdCounter);
+						termMetadataForThisDoc.setTermFrequency(termMetadataForThisDoc.getTermFrequency() + 1);
+						termMetadataForThisDoc.setBoosterScore(termMetadataForThisDoc.getBoosterScore() + boosterScore);
+
+					} else {
+						termMetadataForThisDoc = new TermMetadataForThisDoc(1, boosterScore, token.getTermText().charAt(0));
+						termIndexForThisDoc.put(docIdCounter, termMetadataForThisDoc);
+					}
+				}
+			}
+
+			/* Building the CATEGORY index */
+			fieldName = FieldNames.CATEGORY;
+			if (doc.getField(fieldName) != null) {
+				fieldText = doc.getField(fieldName)[0];
+				TokenStream tokenstream = tokenizer.consume(fieldText);
+
+				Analyzer analyzer = analyzerFactory.getAnalyzerForField(fieldName, tokenstream);
+				analyzer.processThroughFilters();
+				tokenstream = analyzer.getStream();
+
+				/* Transfer tokenstream into the dictionary */
+				tokenstream.reset();
+				while (tokenstream.hasNext()) {
+					Token token = tokenstream.next();
+					Long termId = categoryIdCounter;
+
+					/*
+					 * Check if the dictionary already contains the term.
+					 * If yes, get the ID. If not, add the term to the dictionary
+					 */
+					if (categoryDictionary.containsKey(token.getTermText())) {
+						termId = categoryDictionary.get(token.getTermText()).getTermId();
+						/*
+						 * Increase overall term frequency in
+						 * term-dictionary
+						 */
+						categoryDictionary.get(token.getTermText()).setFrequency(categoryDictionary.get(token.getTermText()).getFrequency() + 1);
+
+					} else {
+						DictionaryMetadata dictionaryMetadata = new DictionaryMetadata(categoryIdCounter++, 1);
+						categoryDictionary.put(token.getTermText(), dictionaryMetadata);
+					}
+
+					/*
+					 * Set booster-score and frequency (relevant to this
+					 * doc)
+					 */
+					int boosterScore = BOOSTER_MULTIPLIER * CATEGORY_BOOSTER;
+
+					/* Put in the corresponding alphabet-index */
+					Map<Long, Map<Long, TermMetadataForThisDoc>> termIndexForThisAlphabet;
+					char firstChar = token.getTermText().toLowerCase().charAt(0);
+					if (categoryIndex.containsKey(firstChar)) {
+						termIndexForThisAlphabet = categoryIndex.get(firstChar);
+					} else {
+						termIndexForThisAlphabet = new HashMap<Long, Map<Long, TermMetadataForThisDoc>>();
+
+						if (firstChar >= 'a' && firstChar <= 'z') {
+							categoryIndex.put(firstChar, termIndexForThisAlphabet);
+						} else {
+							categoryIndex.put('_', termIndexForThisAlphabet);
+						}
+					}
+
+					/* Put in the term index */
+					Map<Long, TermMetadataForThisDoc> termIndexForThisDoc;
+					if (termIndexForThisAlphabet.containsKey(termId)) {
+						termIndexForThisDoc = termIndexForThisAlphabet.get(termId);
+					} else {
+						termIndexForThisDoc = new HashMap<Long, TermMetadataForThisDoc>();
+						termIndexForThisAlphabet.put(termId, termIndexForThisDoc);
+					}
+
+					/* For the doc */
+					TermMetadataForThisDoc termMetadataForThisDoc = null;
+					if (termIndexForThisDoc.containsKey(docIdCounter)) {
+						termMetadataForThisDoc = termIndexForThisDoc.get(docIdCounter);
+						termMetadataForThisDoc.setTermFrequency(termMetadataForThisDoc.getTermFrequency() + 1);
+						termMetadataForThisDoc.setBoosterScore(termMetadataForThisDoc.getBoosterScore() + boosterScore);
+
+					} else {
+						termMetadataForThisDoc = new TermMetadataForThisDoc(1, boosterScore, token.getTermText().charAt(0));
+						termIndexForThisDoc.put(docIdCounter, termMetadataForThisDoc);
+					}
+				}
+			}
+			
 			analyzerTime += (new Date().getTime() - startTime) / 1000.0;
-
-			/* Write using RandomFileAccess */
-			// writeToTermIndexWithRAF(termsInThisDocument, docIdCounter);
-
 			docIdCounter++;
 
 		} catch (TokenizerException e) {
 			System.out.println("Exception caught");
 			e.printStackTrace();
-		}
-		// catch (IOException e) {
-		// e.printStackTrace();
-		// throw new
-		// IndexerException("IndexerException occured while writing to indexer files");
-		// }
-	}
-
-	/* Write the term-dictionary to disk */
-	private void writeTermDictionary() throws IOException {
-		if (termDictionary != null) {
-			File termDictFile = new File(indexDirectory + termDictFileName);
-			if (termDictFile.exists())
-				termDictFile.delete();
-			termDictFile.createNewFile();
-			termDictionaryWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termDictFile, true)));
-			termDictionaryWriter.writeObject(termDictionary);
 		}
 	}
 
@@ -229,28 +450,52 @@ public class IndexWriter {
 		}
 	}
 
-	private void writeTermIndex() throws IOException {
+	/* Write the term-dictionary to disk */
+	private void writeDictionaryToFile(String dictFileName, Map<String, DictionaryMetadata> dictionary) throws IOException {
+		if (dictionary != null) {
+			File termDictFile = new File(indexDirectory + dictFileName);
+			if (termDictFile.exists())
+				termDictFile.delete();
+			termDictFile.createNewFile();
+
+			ObjectOutputStream termDictionaryWriter = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termDictFile, true)));
+			if (termDictionaryWriter != null) {
+				/* Write the dictionary */
+				termDictionaryWriter.writeObject(dictionary);
+
+				/* Close the dictionary writer */
+				termDictionaryWriter.close();
+			}
+		}
+	}
+
+	private void writeIndexToFile(String indexFileNamePrefix, Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> index) throws IOException {
 		/* For indexes: Create the files */
 		File termIndexFile;
 		for (char i = 'a'; i <= 'z'; i++) {
-			termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + i + ".txt");
+			termIndexFile = new File(indexDirectory + indexFileNamePrefix + i + ".txt");
 			if (termIndexFile.exists()) {
 				termIndexFile.delete();
 			}
+			termIndexFile.createNewFile();
 			ObjectOutputStream writer = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
-			writer.writeObject(termIndex.get(i));
-			writer.close();
+			if (writer != null) {
+				writer.writeObject(index.get(i));
+				writer.close();
+			}
 		}
 
 		/* Create the last file for miscellaneous characters */
-		termIndexFile = new File(indexDirectory + termIndexFileNamePrefix + "_" + ".txt");
+		termIndexFile = new File(indexDirectory + indexFileNamePrefix + "_" + ".txt");
 		if (termIndexFile.exists()) {
 			termIndexFile.delete();
 		}
 		termIndexFile.createNewFile();
 		ObjectOutputStream writer = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(termIndexFile, true)));
-		writer.writeObject(termIndex.get('_'));
-		writer.close();
+		if (writer != null) {
+			writer.writeObject(index.get('_'));
+			writer.close();
+		}
 	}
 
 	/**
@@ -262,12 +507,24 @@ public class IndexWriter {
 	 */
 	public void close() throws IndexerException {
 
-		/* Write to term index */
 		try {
 			startTime = new Date().getTime();
-			writeTermDictionary();
+
+			/* Write the document dictionaries to files */
 			writeDocumentDictionary();
-			writeTermIndex();
+
+			/* Write the term dictionaries */
+			writeDictionaryToFile(termDictFileName, termDictionary);
+			writeDictionaryToFile(categDictFileName, categoryDictionary);
+			writeDictionaryToFile(authorDictFileName, authorDictionary);
+			writeDictionaryToFile(placesDictFileName, placesDictionary);
+
+			/* Write the indexes to files */
+			writeIndexToFile(termIndexFileNamePrefix, termIndex);
+			writeIndexToFile(categoryIndexFileNamePrefix, categoryIndex);
+			writeIndexToFile(authorIndexFileNamePrefix, authorIndex);
+			writeIndexToFile(placeIndexFileNamePrefix, placesIndex);
+
 			writeTime += (new Date().getTime() - startTime) / 1000.0;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -278,21 +535,6 @@ public class IndexWriter {
 		System.out.println("Time for writing ==> " + writeTime);
 
 		try {
-//			for (char c = 'a'; c <= 'z'; c++) {
-//				if (listOfWriters.get(c) != null) {
-//					ObjectOutputStream stream = listOfWriters.get(c);
-//					stream.flush();
-//					stream.close();
-//				}
-//			}
-//			if (listOfWriters.get('_') != null) {
-//				listOfWriters.get('_').flush();
-//				listOfWriters.get('_').close();
-//			}
-
-			if (termDictionaryWriter != null) {
-				termDictionaryWriter.close();
-			}
 			if (docuDictionaryWriter != null) {
 				docuDictionaryWriter.close();
 			}

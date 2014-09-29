@@ -42,12 +42,11 @@ public class TokenFilterFactory {
 	 * @param stream
 	 *             : The TokenStream instance to be wrapped
 	 * @return The built {@link TokenFilter} instance
+	 * @throws TokenizerException 
 	 */
-	public TokenFilter getFilterByType(TokenFilterType type, TokenStream stream) {
+	public TokenFilter getFilterByType(TokenFilterType type, TokenStream stream) throws TokenizerException {
 		// TODO : YOU MUST IMPLEMENT THIS METHOD
 		try{
-
-
 			if (type == TokenFilterType.ACCENT)
 				return new AccentFilter(stream);
 			else if (type == TokenFilterType.NUMERIC)
@@ -70,8 +69,7 @@ public class TokenFilterFactory {
 		catch(Exception e )
 		{
 			e.printStackTrace();
-			System.err.println("Error in TokenFilter Factory");
+			throw new TokenizerException("Error in TokenFilter Factory");
 		}
-		return null;
 	}
 }

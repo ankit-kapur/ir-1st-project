@@ -20,8 +20,13 @@ public class TitleAnalyzer implements Analyzer {
 
 	@Override
 	public boolean increment() throws TokenizerException {
-		// No need to implement
-		return false;
+		if (tokenStream != null && tokenStream.hasNext()) {
+			tokenStream.next();
+			return true;
+		} else {
+			processThroughFilters();
+			return false;
+		}
 	}
 
 	@Override

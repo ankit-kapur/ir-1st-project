@@ -10,11 +10,11 @@ import edu.buffalo.cse.irf14.analysis.TokenFilterType;
 import edu.buffalo.cse.irf14.analysis.TokenStream;
 import edu.buffalo.cse.irf14.analysis.TokenizerException;
 
-public class PlaceAnalyzer implements Analyzer {
+public class CategoryAnalyzer implements Analyzer {
 
 	TokenStream tokenStream;
 
-	public PlaceAnalyzer(TokenStream stream) {
+	public CategoryAnalyzer(TokenStream stream) {
 		this.tokenStream = stream;
 	}
 
@@ -39,7 +39,6 @@ public class PlaceAnalyzer implements Analyzer {
 		List<TokenFilterType> filterTypeList = new ArrayList<TokenFilterType>();
 
 		/* Order of filters */
-		filterTypeList.add(TokenFilterType.CAPITALIZATION);
 		filterTypeList.add(TokenFilterType.SYMBOL);
 		filterTypeList.add(TokenFilterType.SPECIALCHARS);
 		
