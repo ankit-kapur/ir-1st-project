@@ -48,7 +48,7 @@ public class QueryParser {
 		String proccessedQuery="";
 		PreProcessingQuery pQuery=new PreProcessingQuery();
 		try {
-			proccessedQuery=pQuery.preProcessingQuery(userQuery);
+			proccessedQuery=pQuery.preProcessingQuery(userQuery,defaultOperator);
 			System.out.println("The PreProcessed Query Is-->"+proccessedQuery);
 			String[] queryTokens=proccessedQuery.split(" ");
 			StringBuffer sbBuffer=new StringBuffer();

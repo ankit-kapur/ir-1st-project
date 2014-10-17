@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class PreProcessingQuery {
 
-	public String preProcessingQuery(String userQuery) throws QueryPreProcessingException
+	public String preProcessingQuery(String userQuery,String defaultOperator) throws QueryPreProcessingException
 	{
 		final String OPAND="AND";
 		final String OPOR="OR";
@@ -18,6 +18,8 @@ public class PreProcessingQuery {
 		int matchcount=0;
 		boolean doubleQuotesFlag=false;
 		boolean matchFlag=false;
+		if(defaultOperator.equals("") || defaultOperator==null || defaultOperator.equals(" "))
+			defaultOperator="OR";
 		try
 		{
 			if(userQuery.contains("\""))
@@ -147,7 +149,7 @@ public class PreProcessingQuery {
 							{
 								if(!tokens[i+1].equals(OPAND) && !tokens[i+1].equals(OPOR) && !tokens[i+1].equals(OPOR)&& !tokens[i+1].contains(":") && !tokens[i+1].contains(")"))
 								{
-									parsedQuery=stringBuffer.append(tokens[i]).append(" ").append(OPOR).append(" ").toString();
+									parsedQuery=stringBuffer.append(tokens[i]).append(" ").append(defaultOperator).append(" ").toString();
 								}
 								else
 								{
@@ -170,7 +172,7 @@ public class PreProcessingQuery {
 							}
 							else if(i!=tokens.length && !tokens[i+1].equals(OPAND) && !tokens[i+1].equals(OPOR) && !tokens[i+1].equals(OPNOT))
 							{
-								parsedQuery=stringBuffer.append(tokens[i]).append(" ").append(OPOR).append(" ").toString();
+								parsedQuery=stringBuffer.append(tokens[i]).append(" ").append(defaultOperator).append(" ").toString();
 							}
 							else
 							{
