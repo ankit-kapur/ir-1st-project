@@ -38,7 +38,7 @@ public class QueryParser {
 	public static final String CATEGORY="Category:";
 	public static final String AUTHOR="Author:";
 	public static final String PLACE="Place:";
-	public static Query parse(String userQuery, String defaultOperator) {
+	public static Query parse(String userQuery, String defaultOperator) throws QueryParserException {
 
 		Query query= new Query();
 		final String OPAND="AND";
@@ -164,7 +164,7 @@ public class QueryParser {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			throw new QueryParserException("Error Occured in QueryParser");
 		}
 		return query;
 
