@@ -94,7 +94,7 @@ public class Runner {
 			System.out.println("placeCount: " + Parser.placeCount);
 			System.out.println("contentCount: " + Parser.contentCount);
 
-<<<<<<< HEAD
+
 			writer.close();
 
 			/* --------TEST CODE--------- 
@@ -118,13 +118,7 @@ public class Runner {
 			}*/
 			/* --------TEST CODE--------- */
 
-			System.out.println("Time for parser ==> " + parserTime);
-			System.out.println("Time for index-writer ==> " + indexWriterTime);
-=======
-//			System.out.println("Time for date filter ==> " + DateFilter.dateTime);
-//			System.out.println("Time for parser ==> " + parserTime);
-//			System.out.println("Time for index-writer ==> " + indexWriterTime);
->>>>>>> ea670f6dba89e001484cf5cb8807839a5d54fef2
+
 			System.out.println("\nOverall time for execution ==> " + (new Date().getTime() - startTime) / 1000.0 + " seconds");
 		} catch (IndexerException e) {
 			// TODO Auto-generated catch block

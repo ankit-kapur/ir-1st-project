@@ -1,5 +1,9 @@
 package edu.buffalo.cse.irf14.query;
 
+import java.util.Map;
+
+import edu.buffalo.cse.irf14.analysis.util.TermMetadataForThisDoc;
+
 public class OR implements Expression {
 	
 	public OR()
@@ -30,6 +34,16 @@ public class OR implements Expression {
 	public String toString()
 	{
 		return leftExpression.toString()+" "+"OR"+" "+rightExpression.toString();
+		
+	}
+	@Override
+	public Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> getPostings() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public  Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> Union()
+	{
+		return null;
 		
 	}
 }

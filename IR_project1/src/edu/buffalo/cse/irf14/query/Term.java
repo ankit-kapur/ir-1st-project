@@ -1,5 +1,9 @@
 package edu.buffalo.cse.irf14.query;
 
+import java.util.Map;
+
+import edu.buffalo.cse.irf14.analysis.util.TermMetadataForThisDoc;
+
 
 public class Term implements Expression {
 	
@@ -86,6 +90,12 @@ public class Term implements Expression {
 		}
 		return queryTerm;
 		
+	}
+
+	@Override
+	public Map<Character, Map<Long, Map<Long, TermMetadataForThisDoc>>> getPostings() {
+		// TODO Auto-generated method stub
+		return null; 
 	}
 	
 }
